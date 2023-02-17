@@ -1,7 +1,7 @@
 using UnityEngine;
 
-public interface SnapListener
+public abstract class SnapListener : MonoBehaviour
 {
-    public void onSnap(Transform snapped);
-    public void onUnsnap();
+    public abstract void onSnap(Transform snapped);
+    public abstract void onUnsnap();
 }
