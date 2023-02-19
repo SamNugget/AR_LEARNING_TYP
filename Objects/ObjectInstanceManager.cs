@@ -8,21 +8,39 @@ namespace ObjectInstances
 {
     public class ObjectInstanceManager : MonoBehaviour
     {
+        public static ObjectInstanceManager singleton;
+
         [SerializeField] private GameObject objectFab;
 
-        public void createObjectInstance<T>(object inMemory, Vector3 spawnPoint, Quaternion spawnRotation = default) where T : ObjectInstance
+        // TODO: inject this into snippets code
+        public static void createObjectInstance(object inMemory, Vector3 spawnPoint, Quaternion spawnRotation = default)
         {
-            GameObject g = Instantiate(objectFab, spawnPoint, spawnRotation, transform);
+            if (inMemory is int)         createObjectInstance<IntInstance>(inMemory, spawnPoint, spawnRotation);
+            else if (inMemory is string) createObjectInstance<StringInstance>(inMemory, spawnPoint, spawnRotation);
+            else if (inMemory is bool)   createObjectInstance<BoolInstance>(inMemory, spawnPoint, spawnRotation);
+            else                         createObjectInstance<CustomTypeInstance>(inMemory, spawnPoint, spawnRotation);
+        }
+
+        public static void createObjectInstance<T>(object inMemory, Vector3 spawnPoint, Quaternion spawnRotation = default) where T : ObjectInstance
+        {
+            GameObject g = Instantiate(singleton.objectFab, spawnPoint, spawnRotation, singleton.transform);
 
             ObjectInstance oI = g.AddComponent<T>();
             oI.inMemory = inMemory;
         }
 
+        void Awake()
+        {
+            if (singleton == null) singleton = this;
+            else Debug.LogError("Two ObjectInstancesManager singletons.");
+        }
+
         void Start()
         {
-            createObjectInstance<IntInstance>(10, new Vector3(0.3f, 0f, 0f));
-            createObjectInstance<StringInstance>("howdy", new Vector3(0.3f, 0.1f, 0f));
-            createObjectInstance<CustomTypeInstance>(new Person(), new Vector3(0.3f, 0.2f, 0f));
+            createObjectInstance<IntInstance>(10, new Vector3(0.3f, 0.5f, 0f));
+            createObjectInstance<StringInstance>("howdy", new Vector3(0.3f, 0.6f, 0f));
+            createObjectInstance<CustomTypeInstance>(new Person(), new Vector3(0.3f, 0.7f, 0f));
+            createObjectInstance<BoolInstance>(true, new Vector3(0.3f, 0.8f, 0f));
         }
     }
 
@@ -30,22 +48,22 @@ namespace ObjectInstances
 
     public static class ObjectInstanceGetter
     {
-        private static List<CustomTypeInstance> customTypeInstances = new List<CustomTypeInstance>();
+        private static List<ObjectInstance> objectInstances = new List<ObjectInstance>();
 
-        public static int getCustomTypeInstanceKey(CustomTypeInstance customTypeInstance)
+        public static int getCustomTypeInstanceKey(ObjectInstance objectInstance)
         {
-            if (!customTypeInstances.Contains(customTypeInstance))
-                customTypeInstances.Add(customTypeInstance);
+            if (!objectInstances.Contains(objectInstance))
+                objectInstances.Add(objectInstance);
 
-            return customTypeInstances.IndexOf(customTypeInstance);
+            return objectInstances.IndexOf(objectInstance);
         }
 
         public static object getCustomTypeInstance(int key)
         {
-            if (key < 0 || key >= customTypeInstances.Count || customTypeInstances[key] == null)
+            if (key < 0 || key >= objectInstances.Count || objectInstances[key] == null)
                 return null;
 
-            return customTypeInstances[key].inMemory;
+            return objectInstances[key].inMemory;
         }
     }
 
@@ -150,7 +168,12 @@ namespace ObjectInstances
     {
         public override string getLabel()
         {
-            return "" + (int)inMemory;
+            return "" + inMemory;
+        }
+
+        public override string toCode()
+        {
+            return "" + inMemory;
         }
     }
 
@@ -159,11 +182,6 @@ namespace ObjectInstances
         public override string getInspectText()
         {
             return "int: " + (int)inMemory;
-        }
-
-        public override string toCode()
-        {
-            return "" + (int)inMemory;
         }
 
         void Start()
@@ -192,7 +210,33 @@ namespace ObjectInstances
 
         void Start()
         {
+            _colour = Color.magenta;
+        }
+    }
+
+    public class ErrInstance : StringInstance
+    {
+        public override string getLabel()
+        {
+            return "ERR";
+        }
+
+        void Start()
+        {
             _colour = Color.red;
+        }
+    }
+
+    public class BoolInstance : BuiltInTypeInstance
+    {
+        public override string getInspectText()
+        {
+            return "bool: " + (bool)inMemory;
+        }
+
+        void Start()
+        {
+            _colour = Color.cyan;
         }
     }
 
