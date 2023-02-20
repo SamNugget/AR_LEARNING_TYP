@@ -17,6 +17,7 @@ namespace FileManagement
     {
         private static Assembly lastASM;
         private static string errors;
+        public static bool changed;
 
         public static void constructObject(ReferenceTypeS rTS, Vector3 spawnPoint)
         {

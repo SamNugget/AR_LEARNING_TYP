@@ -23,6 +23,6 @@ public class Window : MonoBehaviour
 
     public virtual void close()
     {
-        Destroy(this);
+        Destroy(gameObject);
     }
 }

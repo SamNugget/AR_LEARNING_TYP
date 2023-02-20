@@ -13,59 +13,7 @@ public class ReferenceTypeS
     public string name;
 
     public List<FieldS> fields;
-    public List<MethodS> methods;
-
-    // public bool locked;
-    // public bool opened
-    // public float[] position
-
-    public ReferenceTypeS(string path, string name)
-    {
-        this.path = path;
-        this.name = name;
-        
-        methods = new List<MethodS>();
-        fields = new List<FieldS>();
-    }
-
-    public void save()
-    {
-        foreach (MethodS m in methods)
-            m.save();
-
-        foreach (FieldS f in fields)
-            f.save();
-    }
-
-    public string getCode()
-    {
-        // first line
-        string code = "public class " + name + "\n{\n\n";
-
-
-        // fields
-        foreach (FieldS f in fields)
-            code += f.getCode();
-        code += '\n';
-
-        // methods
-        foreach (MethodS m in methods)
-            code += m.getCode(true) + '\n';
-
-
-        code += '}';
-        return code;
-    }
-
-
-
-
-
-    public void addField(Block fieldBlock)
-    {
-        fields.Add(new FieldS(fieldBlock));
-    }
-
+    public void addField(Block fieldBlock) { fields.Add(new FieldS(fieldBlock)); }
     public void removeField(Block fieldBlock)
     {
         foreach (FieldS f in fields)
@@ -78,26 +26,75 @@ public class ReferenceTypeS
         }
     }
 
-    public void addMethod(Block methodDeclaration)
+    public List<MethodS> methods;
+    public void addMethod(MethodS mS) { methods.Add(mS); }
+    public void removeMethod(MethodS mS) { methods.Remove(mS); }
+
+    // public bool locked;
+    // public bool opened
+    // public float[] position
+
+    public ReferenceTypeS(string path, string name)
     {
-        methods.Add(new MethodS(methodDeclaration));
+        this.path = path;
+        this.name = name;
+        
+        methods = new List<MethodS>();
+        // add constructor method
+        methods.Add(createConstructorS(name));
+
+        fields = new List<FieldS>();
     }
 
-    public void removeMethod(Block methodDeclaration)
+    public static MethodS createConstructorS(string name)
     {
-        MethodS m = findMethodSave(methodDeclaration);
-        methods.Remove(m);
+        MethodS constructor = new MethodS();
+
+        BlockSave[] subblocks = new BlockSave[] {
+            new BlockSave(BlockManager.createNameBlock(name)),
+            new BlockSave(BlockManager.getBlockVariantIndex("Place Variable")) };
+        constructor.methodDeclarationS = new BlockSave(BlockManager.getBlockVariantIndex("Constructor"), subblocks);
+
+        constructor.methodBodyMasterS = new BlockSave(BlockManager.getBlockVariantIndex("Method Block"),
+            new BlockSave[] { new BlockSave(0) });
+
+        return constructor;
     }
 
-    public MethodS findMethodSave(Block b, bool dec = true)
+    public void save()
     {
         foreach (MethodS m in methods)
-        {
-            if (dec && m.methodDeclaration == b)
-                return m;
-            else if (!dec && m.methodBodyMaster == b)
-                return m;
-        }
-        return null;
+            m.save();
+        foreach (FieldS f in fields)
+            f.save();
     }
+
+    public string getCode()
+    {
+        // TODO: string builder
+        // first line
+        string code = "public class " + name + "\n{\n\n";
+
+
+        // fields
+        foreach (FieldS f in fields)
+            code += f.getCode();
+        code += '\n';
+
+        // methods
+        foreach (MethodS m in methods)
+            code += m.getCode() + '\n';
+
+
+        code += '}';
+        return code;
+    }
+
+    /*public MethodS findMethodSave(Block b)
+    {
+        foreach (MethodS m in methods)
+            if (m.methodDeclaration == b || m.methodBodyMaster == b)
+                return m;
+        return null;
+    }*/
 }

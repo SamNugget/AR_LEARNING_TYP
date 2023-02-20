@@ -14,7 +14,7 @@ namespace ActionManagement
         public readonly static int DELETE_SELECT = 3; // mode
         public readonly static int INSERT_LINE = 4; // mode
         public readonly static int CREATE_NAME = 5; // mode
-        public readonly static int NAME_FIELD_OR_METHOD = 6;
+        public readonly static int NAME_NEW_F_M_V = 6;
         public readonly static int NAME_VARIABLE = 7;
 
         // TOOLS
@@ -26,7 +26,8 @@ namespace ActionManagement
         public readonly static int CREATE_WORKSPACE = 22;
         public readonly static int OPEN_FILE = 23;
         public readonly static int CREATE_FILE = 24;
-        public readonly static int BACK_TO_WORKSPACES = 25;
+        public readonly static int CREATE_SNIPPET = 25;
+        public readonly static int BACK_TO_WORKSPACES = 26;
 
 
 
@@ -39,8 +40,8 @@ namespace ActionManagement
             actions.Add(PLACE_SELECT, new Place());
             actions.Add(DELETE_SELECT, new Delete());
             actions.Add(INSERT_LINE, new InsertLine());
-            //actions.Add(CREATE_NAME, new CreateName());
-            //actions.Add(NAME_FIELD_OR_METHOD, new NameFieldOrMethod());
+            actions.Add(CREATE_NAME, new CreateName());
+            actions.Add(NAME_NEW_F_M_V, new NameNewFMV());
             //actions.Add(NAME_VARIABLE, new NameVariable());
 
             //actions.Add(SAVE, new SaveCode());
@@ -49,7 +50,8 @@ namespace ActionManagement
             //actions.Add(OPEN_WORKSPACE, new OpenWorkspace());
             //actions.Add(CREATE_WORKSPACE, new CreateWorkspace());
             //actions.Add(OPEN_FILE, new OpenFile());
-            //actions.Add(CREATE_FILE, new CreateFile());
+            actions.Add(CREATE_FILE, new CreateFile());
+            actions.Add(CREATE_SNIPPET, new CreateSnippet());
             //actions.Add(BACK_TO_WORKSPACES, new BackToWorkspaces());
         }
 
@@ -120,9 +122,9 @@ namespace ActionManagement
 
 
             // set message on toolsWindow
-            /*Window toolsWindow = WindowManager.getWindowWithComponent<ToolsWindow>();
+            TitledWindow toolsWindow = (TitledWindow)WindowManager.getWindowWithName("ToolsWindow");
             if (toolsWindow != null)
-                toolsWindow.setTitleTextMessage(toolsWindowMessage, toolsWindowMessage != "");*/
+                toolsWindow.setTitleMessage(toolsWindowMessage);
         }
         public static bool callCurrentMode(object data)
         {
@@ -155,7 +157,12 @@ namespace ActionManagement
         {
             if (actions == null) initialiseActions();
 
-            if (!actions.ContainsKey(action))
+            if (action == 0)
+            {
+                clearMode();
+                return;
+            }
+            else if (!actions.ContainsKey(action))
             {
                 Debug.Log("Action " + action + " was not recognised.");
                 return;
@@ -240,9 +247,7 @@ namespace ActionManagement
             // methods or fields are placed
             else if (type == BlockManager.PLACE)
             {
-                BlockManager.lastMaster = master;
-                ActionManager.callAction(ActionManager.NAME_FIELD_OR_METHOD, clicked);
-                return; // change is in next action
+                ActionManager.callAction(ActionManager.NAME_NEW_F_M_V, clicked);
             }
 
 
@@ -256,18 +261,12 @@ namespace ActionManagement
             {
                 int variantIndex = BlockManager.getBlockVariantIndex(variant);
                 ActionManager.callAction(ActionManager.PLACE_SELECT, variantIndex);
-                return; // just copying, no changes
             }
             // try and place a block here
             else if (modeIndex == ActionManager.PLACE_SELECT)
             {
                 ActionManager.callCurrentMode(data);
             }
-            else return; // if dropped out, no changes
-
-
-
-            Debug.Log("Changes have been made! Should contact compilation dude");
         }
     }
 
@@ -385,7 +384,7 @@ namespace ActionManagement
 
             // if splitting method or field, insert new method/field line
             string blockName = toSplit.getBlockVariant().getName();
-            if (blockName == "Field" || blockName == "Method" || blockName == "Interface Method")
+            if (blockName == "Field")
                 BlockManager.spawnBlock(BlockManager.getBlockVariantIndex(blockName), splitter.getSubBlock(1));
 
             splitter.setSpecialChildBlock(BlockManager.getBlockVariantIndex("Insert Line"), true);
@@ -416,18 +415,17 @@ namespace ActionManagement
 
 
 
-    /*
     public class CreateName : Mode
     {
-        //private Window textEntryWindow;
+        private Window textEntryWindow;
         private NameCreator nameCreator;
 
         public override void onCall(object data)
         {
             nameCreator.onFinishedNaming(true, (string)data);
-
-            WindowManager.destroyWindow(textEntryWindow);
+            GameObject.Destroy(textEntryWindow.gameObject);
             textEntryWindow = null;
+
             ActionManager.clearMode();
         }
 
@@ -441,8 +439,8 @@ namespace ActionManagement
 
             nameCreator = (NameCreator)data;
 
-            textEntryWindow = WindowManager.spawnTextInputWindow(nameCreator.parent);
-            textEntryWindow.setName(nameCreator.getTextEntryWindowMessage());
+            textEntryWindow = WindowManager.spawnWindow("TextEntry");
+            ((TitledWindow)textEntryWindow).setTitle(nameCreator.getTextEntryWindowMessage());
         }
 
         public override void onDeselect()
@@ -450,8 +448,8 @@ namespace ActionManagement
             if (textEntryWindow != null)
             {
                 nameCreator.onFinishedNaming(false, null);
-
-                WindowManager.destroyWindow(textEntryWindow);
+                GameObject.Destroy(textEntryWindow.gameObject);
+                textEntryWindow = null;
             }
         }
 
@@ -471,7 +469,7 @@ namespace ActionManagement
 
 
 
-    public class NameFieldOrMethod : NameCreator, Act
+    public class NameNewFMV : NameCreator, Act
     {
         // BlockClicked ==> NameFieldOrMethod ==> CreateName ==> NameFieldOrMethod
 
@@ -502,22 +500,13 @@ namespace ActionManagement
             else if (blockName == "Place Field")
             {
                 b = BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Field"), clicked, false);
-                BlockManager.lastFileWindow.referenceTypeSave.addField(b);
+                clicked.GetComponentInParent<ClassWindow>().referenceTypeSave.addField(b);
                 emptyNameBlockIndex = 2;
             }
             else if (blockName == "Place Method")
             {
-                if (clicked.getParent().getBlockVariant().getName() == "Window Block") // true in class window
-                {
-                    b = BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Method"), clicked, false);
-                    emptyNameBlockIndex = 2;
-                }
-                else
-                {
-                    b = BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Interface Method"), clicked, false);
-                    emptyNameBlockIndex = 1;
-                }
-                BlockManager.lastFileWindow.referenceTypeSave.addMethod(b);
+                Debug.Log("Not yet implemented.");
+                return;
             }
             else
             {
@@ -532,8 +521,7 @@ namespace ActionManagement
             BlockManager.spawnBlock(nameBlockVariantIndex, emptyNameBlock);
 
 
-            BlockManager.lastMaster.setColliderEnabled(true, BlockManager.blocksEnabledForPlacing);
-            BlockManager.lastFileWindow.setTitleTextMessage("*", false);
+            b.getMasterBlock().setColliderEnabled(true, BlockManager.blocksEnabledForPlacing);
         }
 
         public override string getTextEntryWindowMessage()
@@ -544,7 +532,7 @@ namespace ActionManagement
 
 
 
-    public class NameVariable : NameCreator, Act
+    /*public class NameVariable : NameCreator, Act
     {
         // BlockClicked ==> NameVariable ==> CreateName ==> NameVariable
 
@@ -569,8 +557,7 @@ namespace ActionManagement
                 // replace empty block with this new name block
                 BlockManager.spawnBlock(nameBlockIndex, beingReplaced, false);
 
-                BlockManager.lastMaster.setColliderEnabled(true, BlockManager.blocksEnabledForPlacing);
-                BlockManager.lastFileWindow.setTitleTextMessage("*", false);
+                beingNamed.setColliderEnabled(true, BlockManager.blocksEnabledForPlacing);
             }
             else
             {
@@ -583,11 +570,11 @@ namespace ActionManagement
         {
             return "Name Variable:";
         }
-    }
+    }*/
 
 
 
-    public class SaveCode : Act
+    /*public class SaveCode : Act
     {
         public void onCall(object data)
         {
@@ -649,17 +636,14 @@ namespace ActionManagement
 
             // TODO: toggle in list in files window
         }
-    }
+    }*/
 
 
 
     public class CreateFile : NameCreator, Act
     {
-        bool isClass;
         public void onCall(object data)
         {
-            isClass = (bool)data;
-            parent = WindowManager.getWindowWithComponent<WorkspaceWindow>();
             ActionManager.callAction(ActionManager.CREATE_NAME, this);
         }
 
@@ -667,27 +651,22 @@ namespace ActionManagement
         {
             if (!success) return;
 
-            ReferenceTypeS rTS = FileManager.createSourceFile(name, isClass);
+            ReferenceTypeS rTS = FileManager.createSourceFile(name);
             if (rTS == null) return;
 
-            Window spawned = WindowManager.spawnFileWindow(isClass);
-            ((FileWindow)spawned).referenceTypeSave = rTS;
-
-            // add to list in files window
-            Window filesWindow = WindowManager.getWindowWithComponent<ButtonManager3D>();
-            ButtonManager3D bM = filesWindow.GetComponent<ButtonManager3D>();
-            bM.respawnButtons();
+            Window w = WindowManager.spawnWindow("ClassWindow");
+            ((ClassWindow)w).referenceTypeSave = rTS;
         }
 
         public override string getTextEntryWindowMessage()
         {
-            return "Name " + (isClass ? "Class" : "Interface") + ':';
+            return "Name Class:";
         }
     }
 
 
 
-    public class BackToWorkspaces : Act
+    /*public class BackToWorkspaces : Act
     {
         public void onCall(object data)
         {
@@ -706,4 +685,15 @@ namespace ActionManagement
             CompilationManager.compileActiveWorkspace();
         }
     }*/
+
+
+
+    public class CreateSnippet : Act
+    {
+        public void onCall(object data)
+        {
+            Window w = WindowManager.spawnWindow("Snippet");
+            ((Snippet)w).methodSave = new MethodS();
+        }
+    }
 }

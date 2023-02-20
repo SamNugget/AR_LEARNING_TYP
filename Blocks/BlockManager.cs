@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using ActionManagement;
 using FileManagement;
 
 public class BlockManager : MonoBehaviour
@@ -20,35 +19,6 @@ public class BlockManager : MonoBehaviour
     private static int nextKey;
 
     //[SerializeField] private bool safeMode = true;
-
-
-
-
-
-    // EDIT STATE
-    //public static FileWindow lastFileWindow;
-    private static Block _lastMaster;
-    public static Block lastMaster
-    {
-        get
-        {
-            return _lastMaster;
-        }
-        set
-        {
-            if (value == null) return;
-
-            _lastMaster = value;
-            _lastMaster.drawBlock(true);
-
-            /*FileWindow fW = _lastMaster.transform.GetComponentInParent<FileWindow>();
-            if (fW != null)
-            {
-                lastFileWindow = fW;
-                if (!fW.simpleView) WindowManager.moveEditToolWindows();
-            }*/
-        }
-    }
 
 
 
@@ -353,7 +323,9 @@ public class BlockManager : MonoBehaviour
         parent.replaceSubBlock(newBlock, subBlockIndex);
 
         // draw the blocks
-        lastMaster = parent.getMasterBlock();
+        parent.drawBlock(true);
+
+        CompilationManager.changed = true;
 
         return newBlock;
     }
@@ -402,7 +374,9 @@ public class BlockManager : MonoBehaviour
         splitter.replaceSubBlock(toSplit, originalOnTop ? 0 : 1);
 
         // draw the blocks
-        lastMaster = parent.getMasterBlock();
+        parent.drawBlock(true);
+
+        CompilationManager.changed = true;
 
         return splitter;
     }
@@ -416,6 +390,7 @@ public class BlockManager : MonoBehaviour
         else masterBlock.initialise(bVI);
 
         masterBlock.drawBlock(true);
+        masterBlock.setColliderEnabled(true, blocksEnabledDefault);
         return masterBlock;
     }
 

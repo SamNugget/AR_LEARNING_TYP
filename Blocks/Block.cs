@@ -38,8 +38,6 @@ public class Block : MonoBehaviour
                 bVI = BlockManager.getFirstVariantOfType(subBlockTypes[i]); // e.g., special AM block
             else if (subBlockTypes[i] == BlockManager.PLACE)
                 bVI = BlockManager.getBlockVariantIndex("Place Variable"); // special [+] block
-            else if (subBlockTypes[i] == BlockManager.OPEN_METHOD)
-                bVI = BlockManager.getBlockVariantIndex("Open Method"); // special [O] block
             else if (subBlockTypes[i] == BlockManager.NEW_NAME)
                 bVI = BlockManager.getBlockVariantIndex("Custom");
 
@@ -114,17 +112,11 @@ public class Block : MonoBehaviour
         populateTextBox();
         resizeBlock();
 
-        /*if (master)
+        if (master)
         {
-            // scale the fileWindow (if applicable)
-            Window editWindow = transform.GetComponentInParent<Window>();
-            if (editWindow != null)
-            {
-                Vector2 scale = FontManager.lettersAndLinesToVector(getWidth(), getHeight());
-                scale *= WindowManager.blockScale;
-                editWindow.scaleWindow(scale.x, scale.y);
-            }
-        }*/
+            Window w = transform.GetComponentInParent<Window>();
+            if (w != null) w.scaleWindow();
+        }
     }
 
     // fills text box with text, updates width and height, and moves subblocks
@@ -138,6 +130,7 @@ public class Block : MonoBehaviour
     // recursive if wanting text from this block and subblocks together
     public string getBlockText(bool recursive)
     {
+        // TODO: string builder
         width = -1;
         height = blockVariant.getHeight();
         int extraHeight = 0;

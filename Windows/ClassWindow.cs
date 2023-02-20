@@ -21,7 +21,6 @@ public class ClassWindow : Window
                 _referenceTypeSave = value;
                 initialiseBlocks();
                 initialiseMethods();
-                scaleWindow();
             }
         }
     }
@@ -57,22 +56,44 @@ public class ClassWindow : Window
     private List<MethodSnippet> methodSnippets = new List<MethodSnippet>();
     private void initialiseMethods()
     {
-        string window = "ConstructorSnippet";
-        foreach (MethodS methodSave in _referenceTypeSave.methods)
-        {
-            Window methodWindow = WindowManager.spawnWindow(window);
-            methodWindow.transform.parent = transform;
+        loadMethod(_referenceTypeSave.methods[0], true);
 
-            MethodSnippet methodSnippet = (MethodSnippet)methodWindow;
-            methodSnippet.methodSave = methodSave;
-            methodSnippets.Add(methodSnippet);
+        for (int i = 1; i < _referenceTypeSave.methods.Count; i++)
+            loadMethod(_referenceTypeSave.methods[i]);
+    }
 
-            if (window[0] == 'C') window = "MethodSnippet";
-        }
+    public void removeMethod(MethodSnippet toRemove)
+    {
+        methodSnippets.Remove(toRemove);
+        _referenceTypeSave.removeMethod(toRemove.methodSave);
+        scaleWindow();
+    }
+
+    private void loadMethod(MethodS methodSave, bool constructor = false, MethodSnippet toGoBelow = null)
+    {
+        string window = (constructor ? "ConstructorSnippet" : "MethodSnippet");
+        int pos = (toGoBelow == null ? methodSnippets.Count : (methodSnippets.IndexOf(toGoBelow) + 1));
+
+
+        MethodSnippet methodSnippet = (MethodSnippet)WindowManager.spawnWindow(window);
+        methodSnippet.transform.parent = transform;
+
+        methodSnippet.methodSave = methodSave;
+        methodSnippets.Insert(pos, methodSnippet);
+
+        scaleWindow();
+    }
+
+    public void insertMethod(MethodSnippet toGoBelow)
+    {
+        MethodS mS = new MethodS();
+        _referenceTypeSave.addMethod(mS);
+        loadMethod(mS, false, toGoBelow);
     }
 
     public override void scaleWindow()
     {
+        if (nameMaster == null || fieldMaster == null) return;
         int w = fieldMaster.getWidth();
         if (nameMaster.getWidth() > w) w = nameMaster.getWidth(); // get biggest width
         Vector2 scale = FontManager.lettersAndLinesToVector(w, fieldMaster.getHeight() + 2, false);

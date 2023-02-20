@@ -7,6 +7,9 @@ public class WindowManager : MonoBehaviour
 {
     private static WindowManager singleton;
 
+    [SerializeField] private GameObject _buttonFab;
+    public static GameObject buttonFab { get { return singleton._buttonFab; } }
+
     [System.Serializable]
     public class WindowFab
     {
@@ -114,14 +117,7 @@ public class WindowManager : MonoBehaviour
     {
         if (singleton == null) singleton = this;
         else Debug.LogError("Two WindowManager singletons.");
-    }
 
-    void Start()
-    {
-        // TESTING
-        FileManager.loadWorkspace(FileManager.workspaceNames[0]);
-        ReferenceTypeS rTS = FileManager.getSourceFile(FileManager.sourceFileNames[0]);
-        Window w = spawnWindow("ClassWindow");
-        ((ClassWindow)w).referenceTypeSave = rTS;
+        FileManager.loadWorkspace("only_workspace");
     }
 }

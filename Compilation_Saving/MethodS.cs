@@ -9,11 +9,6 @@ public class MethodS
     [NonSerialized] public Block methodBodyMaster;
     public BlockSave methodBodyMasterS;
 
-    public MethodS(Block methodDeclaration)
-    {
-        this.methodDeclaration = methodDeclaration;
-    }
-
     public void save()
     {
         methodDeclarationS = methodDeclaration.saveBlock();
@@ -35,31 +30,26 @@ public class MethodS
         bodySaveBuffer = methodBodyMaster.saveBlock();
     }
 
-    public string getCode(bool body)
+    public string getCode()
     {
         if (methodDeclaration == null)
             return null;
 
+        // TODO: string builder
         string result = methodDeclaration.getBlockText(true);
-        if (body)
-        {
-            string bodyText = "";
-            if (methodBodyMaster != null)
-                bodyText = methodBodyMaster.getBlockText(true);
-            else
-            {
-                BlockSave bS = methodBodyMasterS;
-                if (bS == null) bS = bodySaveBuffer;
-                if (bS != null)
-                    bodyText = BlockManager.blockSaveToText(bS);
-            }
-
-            result += "{\n" + bodyText + "\n}\n";
-        }
+        string bodyText = "";
+        if (methodBodyMaster != null)
+            bodyText = methodBodyMaster.getBlockText(true);
         else
         {
-            result += ";\n";
+            BlockSave bS = methodBodyMasterS;
+            if (bS == null) bS = bodySaveBuffer;
+            if (bS != null)
+                bodyText = BlockManager.blockSaveToText(bS);
         }
+
+        result += "{\n" + bodyText + "\n}\n";
+
 
         return result;
     }
