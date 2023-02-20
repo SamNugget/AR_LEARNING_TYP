@@ -35,22 +35,22 @@ namespace ActionManagement
         {
             actions = new Dictionary<int, Act>();
 
-            /*actions.Add(BLOCK_CLICKED, new BlockClicked());
+            actions.Add(BLOCK_CLICKED, new BlockClicked());
             actions.Add(PLACE_SELECT, new Place());
             actions.Add(DELETE_SELECT, new Delete());
             actions.Add(INSERT_LINE, new InsertLine());
-            actions.Add(CREATE_NAME, new CreateName());
-            actions.Add(NAME_FIELD_OR_METHOD, new NameFieldOrMethod());
-            actions.Add(NAME_VARIABLE, new NameVariable());
+            //actions.Add(CREATE_NAME, new CreateName());
+            //actions.Add(NAME_FIELD_OR_METHOD, new NameFieldOrMethod());
+            //actions.Add(NAME_VARIABLE, new NameVariable());
 
-            actions.Add(SAVE, new SaveCode());
-            actions.Add(COMPILE, new Compile());
+            //actions.Add(SAVE, new SaveCode());
+            //actions.Add(COMPILE, new Compile());
 
-            actions.Add(OPEN_WORKSPACE, new OpenWorkspace());
-            actions.Add(CREATE_WORKSPACE, new CreateWorkspace());
-            actions.Add(OPEN_FILE, new OpenFile());
-            actions.Add(CREATE_FILE, new CreateFile());
-            actions.Add(BACK_TO_WORKSPACES, new BackToWorkspaces());*/
+            //actions.Add(OPEN_WORKSPACE, new OpenWorkspace());
+            //actions.Add(CREATE_WORKSPACE, new CreateWorkspace());
+            //actions.Add(OPEN_FILE, new OpenFile());
+            //actions.Add(CREATE_FILE, new CreateFile());
+            //actions.Add(BACK_TO_WORKSPACES, new BackToWorkspaces());
         }
 
 
@@ -208,12 +208,12 @@ namespace ActionManagement
     }
 
 
-    /*
+
     public class BlockClicked : Act
     {
         public void onCall(object data)
         {
-            char modeSymbol = ActionManager.getCurrentModeIndex();
+            int modeIndex = ActionManager.getCurrentModeIndex();
 
             Block clicked = (Block)data;
             Block master = clicked.getMasterBlock();
@@ -231,8 +231,6 @@ namespace ActionManagement
                 // change block variant to next in cycle and enable colliders
                 Block spawned = BlockManager.spawnBlock(nVIndex, clicked, false);
                 spawned.setColliderEnabled(true);
-
-                master.drawBlock(true);
             }
             // lines are inserted
             else if (type == BlockManager.INSERT_LINE)
@@ -246,19 +244,10 @@ namespace ActionManagement
                 ActionManager.callAction(ActionManager.NAME_FIELD_OR_METHOD, clicked);
                 return; // change is in next action
             }
-            else if (type == BlockManager.OPEN_METHOD)
-            {
-                FileWindow fileWindow = master.GetComponentInParent<FileWindow>();
-                Block declarationBlock = clicked.getParent();
-
-                WindowManager.moveMethodWindow(fileWindow, declarationBlock);
-
-                return; // opening file
-            }
 
 
             // delete the clicked block
-            else if (modeSymbol == ActionManager.DELETE_SELECT)
+            else if (modeIndex == ActionManager.DELETE_SELECT)
             {
                 ActionManager.callCurrentMode(data);
             }
@@ -270,7 +259,7 @@ namespace ActionManagement
                 return; // just copying, no changes
             }
             // try and place a block here
-            else if (modeSymbol == ActionManager.PLACE_SELECT)
+            else if (modeIndex == ActionManager.PLACE_SELECT)
             {
                 ActionManager.callCurrentMode(data);
             }
@@ -278,7 +267,7 @@ namespace ActionManagement
 
 
 
-            BlockManager.lastFileWindow.setTitleTextMessage("*", false);
+            Debug.Log("Changes have been made! Should contact compilation dude");
         }
     }
 
@@ -427,6 +416,7 @@ namespace ActionManagement
 
 
 
+    /*
     public class CreateName : Mode
     {
         //private Window textEntryWindow;

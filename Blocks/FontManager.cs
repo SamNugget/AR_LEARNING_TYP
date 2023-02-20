@@ -21,9 +21,11 @@ public class FontManager : MonoBehaviour
         horizontalAdvance = font.glyphTable[0].metrics.horizontalAdvance * approxScale;
     }
 
-    public static Vector2 lettersAndLinesToVector(int x, int y)
+    public static Vector2 lettersAndLinesToVector(int x, int y, bool local = true)
     {
-        return new Vector2(x * horizontalAdvance, y * lineHeight);
+        Vector2 v = new Vector2(x * horizontalAdvance, y * lineHeight);
+        if (!local) v *= BlockManager.blockScale;
+        return v;
     }
 
     public static int[] vectorToLettersAndLines(Vector2 v)

@@ -10,7 +10,7 @@ public class BlockManager : MonoBehaviour
     public static BlockManager singleton = null;
 
     [SerializeField] private GameObject _blockFab;
-    public static GameObject blockFab { get { return singleton.blockPrefab; } }
+    public static GameObject blockFab { get { return singleton._blockFab; } }
 
     [SerializeField] private float _blockScale = 1f;
     public static float blockScale { get { return singleton._blockScale; } }
@@ -38,10 +38,7 @@ public class BlockManager : MonoBehaviour
         {
             if (value == null) return;
 
-            // set last master
             _lastMaster = value;
-
-            // draw last master
             _lastMaster.drawBlock(true);
 
             /*FileWindow fW = _lastMaster.transform.GetComponentInParent<FileWindow>();
@@ -418,6 +415,7 @@ public class BlockManager : MonoBehaviour
         if (blockSave != null) masterBlock.initialise(blockSave);
         else masterBlock.initialise(bVI);
 
+        masterBlock.drawBlock(true);
         return masterBlock;
     }
 
@@ -507,8 +505,8 @@ public class BlockManager : MonoBehaviour
         BlockVariant bV = getBlockVariant(name);
         if (bV != null)
         {
-            if (_defaultBlockVariants.ContainsValue(bV)) return -1;
-            else return getBlockVariantIndex(bV);
+            /*if (_defaultBlockVariants.ContainsValue(bV)) return -1;
+            else */return getBlockVariantIndex(bV);
         }
 
         BlockVariant newVariant = new BlockVariant(name);

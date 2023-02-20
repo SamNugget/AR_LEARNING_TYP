@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FileManagement; // temp
 
 public class WindowManager : MonoBehaviour
 {
@@ -66,9 +67,61 @@ public class WindowManager : MonoBehaviour
 
 
 
+    public static List<Block> getMasterBlocks()
+    {
+        List<Block> masterBlocks = new List<Block>();
+
+        Window[] windows = singleton.GetComponentsInChildren<Window>();
+        foreach (Window w in windows)
+        {
+            foreach (Transform child in w.transform)
+            {
+                Block b = child.GetComponent<Block>();
+                if (b != null) masterBlocks.Add(b);
+            }
+        }
+
+        Debug.Log("There's " + masterBlocks.Count + " master blocks.");
+        return masterBlocks;
+    }
+
+    public static void updateEditWindowColliders(bool enabled, List<string> mask = null, bool invert = false)
+    {
+        List<Block> masterBlocks = getMasterBlocks();
+        foreach (Block m in masterBlocks)    
+            m.setColliderEnabled(enabled, mask, invert);
+    }
+
+    public static void updateEditWindowSpecialBlocks(int variantIndex, bool enabled) // e.g., for insert line
+    {
+        List<Block> masterBlocks = getMasterBlocks();
+        foreach (Block m in masterBlocks)
+            m.setSpecialChildBlock(variantIndex, enabled);
+    }
+
+    public static void enableEditWindowLeafBlocks() // for deletion of blocks
+    {
+        List<Block> masterBlocks = getMasterBlocks();
+        foreach (Block m in masterBlocks)
+            m.enableLeafBlocks(true);
+    }
+
+
+
+
+
     void Awake()
     {
         if (singleton == null) singleton = this;
         else Debug.LogError("Two WindowManager singletons.");
+    }
+
+    void Start()
+    {
+        // TESTING
+        FileManager.loadWorkspace(FileManager.workspaceNames[0]);
+        ReferenceTypeS rTS = FileManager.getSourceFile(FileManager.sourceFileNames[0]);
+        Window w = spawnWindow("ClassWindow");
+        ((ClassWindow)w).referenceTypeSave = rTS;
     }
 }

@@ -21,7 +21,7 @@ public class ClassWindow : Window
                 _referenceTypeSave = value;
                 initialiseBlocks();
                 initialiseMethods();
-                scaleWindow(0f, 0f);
+                scaleWindow();
             }
         }
     }
@@ -33,8 +33,9 @@ public class ClassWindow : Window
         nameMaster = BlockManager.createMasterBlock(bVI, transform);
 
         // create field blocks
-        bVI = BlockManager.getBlockVariantIndex("Method Window");
+        bVI = BlockManager.getBlockVariantIndex("Method Block");
         fieldMaster = BlockManager.createMasterBlock(bVI, transform);
+        fieldMaster.transform.position -= (Vector3)FontManager.lettersAndLinesToVector(0, 1, false) * 1.5f;
 
         Block topBlock = fieldMaster.getSubBlock(0);
         if (_referenceTypeSave.fields.Count == 0)
@@ -56,33 +57,38 @@ public class ClassWindow : Window
     private List<MethodSnippet> methodSnippets = new List<MethodSnippet>();
     private void initialiseMethods()
     {
-        GameObject prefab = WindowManager.getWindowFab("MethodSnippet");
-
-        foreach (MethodS methodSave in _referenceTypeSave)
+        string window = "ConstructorSnippet";
+        foreach (MethodS methodSave in _referenceTypeSave.methods)
         {
-            GameObject g = Instantiate(prefab, transform);
-            MethodSnippet methodSnippet = g.GetComponent<MethodSnippet>();
+            Window methodWindow = WindowManager.spawnWindow(window);
+            methodWindow.transform.parent = transform;
+
+            MethodSnippet methodSnippet = (MethodSnippet)methodWindow;
             methodSnippet.methodSave = methodSave;
             methodSnippets.Add(methodSnippet);
+
+            if (window[0] == 'C') window = "MethodSnippet";
         }
     }
 
-    public override void scaleWindow(float width, float height)
+    public override void scaleWindow()
     {
         int w = fieldMaster.getWidth();
         if (nameMaster.getWidth() > w) w = nameMaster.getWidth(); // get biggest width
-        Vector2 scale = FontManager.lettersAndLinesToVector(w, fieldMaster.getHeight() + 1);
-        scale *= BlockManager.blockScale;
+        Vector2 scale = FontManager.lettersAndLinesToVector(w, fieldMaster.getHeight() + 2, false);
 
 
-        base.scaleWindow(scale.x, scale.y);
+        width = scale.x;
+        height = scale.y;
+        base.scaleWindow();
 
 
-        float yPos = scale.y;
+        // move snippets
+        float yPos = -height;
         foreach (MethodSnippet mS in methodSnippets)
         {
-            mS.transform.position = new Vector3(0f, yPos, 0f);
-            yPos += mS.height;
+            mS.transform.localPosition = new Vector3(0f, yPos, 0f);
+            yPos -= mS.height;
         }
     }
 }

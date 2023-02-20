@@ -12,13 +12,10 @@ public class Window : MonoBehaviour
     [SerializeField] private float minWidth = 0.3f;
     [SerializeField] private float minHeight = 0.3f;
 
-    public virtual void scaleWindow(float width, float height)
+    public virtual void scaleWindow()
     {
         if (width < minWidth) width = minWidth;
         if (height < minHeight) height = minHeight;
-
-        this.width = width;
-        this.height = height;
 
         Transform cube = transform.GetChild(0);
         cube.localScale = new Vector3(width, height, cube.localScale.z);

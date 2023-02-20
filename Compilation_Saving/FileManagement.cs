@@ -13,13 +13,6 @@ using ObjectInstances;
 
 namespace FileManagement
 {
-    public class Compilable : MonoBehaviour
-    {
-
-    }
-
-
-
     public static class CompilationManager
     {
         private static Assembly lastASM;
@@ -174,7 +167,10 @@ namespace FileManagement
             if (activeWorkspace == null || activeWorkspace.path != workspacePath)
             {
                 //WindowManager.destroyFileWindows();
+
                 activeWorkspace = new Workspace(workspacePath);
+
+                BlockManager.loadCustomBlockVariants();
             }
         }
 
@@ -190,7 +186,7 @@ namespace FileManagement
             return activeWorkspace.saveSourceFile(name);
         }
 
-        public static ReferenceTypeS createSourceFile(string name, bool isClass)
+        public static ReferenceTypeS createSourceFile(string name)
         {
             return activeWorkspace.createSourceFile(name);
         }

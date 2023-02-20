@@ -114,7 +114,7 @@ namespace ObjectInstances
             string json = JsonUtility.ToJson(inMemory, true);
             string[] lines = json.Split('\n');
             
-            json = "";
+            json = getLabel() + '(' + inMemory.GetHashCode() + ")\n";
             for (int i = 1; i < lines.Length - 1; i++)
                 json += lines[i].Substring(4) + '\n';
 
