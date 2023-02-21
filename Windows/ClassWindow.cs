@@ -53,7 +53,7 @@ public class ClassWindow : Window
         }
     }
 
-    private List<MethodSnippet> methodSnippets = new List<MethodSnippet>();
+    private List<Snippet> methodSnippets = new List<Snippet>();
     private void initialiseMethods()
     {
         loadMethod(_referenceTypeSave.methods[0], true);
@@ -62,20 +62,20 @@ public class ClassWindow : Window
             loadMethod(_referenceTypeSave.methods[i]);
     }
 
-    public void removeMethod(MethodSnippet toRemove)
+    public void removeMethod(Snippet toRemove)
     {
         methodSnippets.Remove(toRemove);
         _referenceTypeSave.removeMethod(toRemove.methodSave);
         scaleWindow();
     }
 
-    private void loadMethod(MethodS methodSave, bool constructor = false, MethodSnippet toGoBelow = null)
+    private void loadMethod(MethodS methodSave, bool constructor = false, Snippet toGoBelow = null)
     {
         string window = (constructor ? "ConstructorSnippet" : "MethodSnippet");
         int pos = (toGoBelow == null ? methodSnippets.Count : (methodSnippets.IndexOf(toGoBelow) + 1));
 
 
-        MethodSnippet methodSnippet = (MethodSnippet)WindowManager.spawnWindow(window);
+        Snippet methodSnippet = (Snippet)WindowManager.spawnWindow(window);
         methodSnippet.transform.parent = transform;
 
         methodSnippet.methodSave = methodSave;
@@ -84,7 +84,7 @@ public class ClassWindow : Window
         scaleWindow();
     }
 
-    public void insertMethod(MethodSnippet toGoBelow)
+    public void insertMethod(Snippet toGoBelow)
     {
         MethodS mS = new MethodS();
         _referenceTypeSave.addMethod(mS);

@@ -394,6 +394,19 @@ public class Block : MonoBehaviour
         return this;
     }
 
+    public List<Block> getBlocksOfType(string type, List<Block> blocks = null)
+    {
+        if (blocks == null) blocks = new List<Block>();
+
+        if (blockVariant.getBlockType() == type)
+            blocks.Add(this);
+
+        foreach (Block subBlock in subBlocks)
+            subBlock.getBlocksOfType(type, blocks);
+
+        return blocks;
+    }
+
     public void pressed()
     {
         ActionManager.callAction(ActionManager.BLOCK_CLICKED, GetComponentInParent<Block>());

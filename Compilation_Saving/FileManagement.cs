@@ -19,14 +19,14 @@ namespace FileManagement
         private static string errors;
         public static bool changed;
 
-        public static void constructObject(ReferenceTypeS rTS, Vector3 spawnPoint)
+        public static void constructObject(string typeName, Vector3 spawnPoint)
         {
             if (lastASM == null)
                 ObjectInstanceManager.createObjectInstance<ErrInstance>(errors, spawnPoint);
 
             try
             {
-                object instance = lastASM.CreateInstance(rTS.name);
+                object instance = lastASM.CreateInstance(typeName);
                 ObjectInstanceManager.createObjectInstance(instance, spawnPoint);
             }
             catch (Exception e)
@@ -42,11 +42,10 @@ namespace FileManagement
 
             try
             {
-                object instance = lastASM.CreateInstance("Snippets");
-                MethodInfo methodInfo = instance.GetType().GetMethod(methodName);
-                object result = methodInfo.Invoke(instance, args);
+                MethodInfo methodInfo = lastASM.GetType("Snippets").GetMethod(methodName);
+                object result = methodInfo.Invoke(null, args);
 
-                ObjectInstanceManager.createObjectInstance(instance, spawnPoint);
+                ObjectInstanceManager.createObjectInstance(result, spawnPoint);
             }
             catch (Exception e)
             {
@@ -66,7 +65,22 @@ namespace FileManagement
                     src.AppendLine(typeCode);
             }
 
+
+            // append all loneSnippets to the end
+            src.AppendLine("public static Snippets\n{");
+
+            List<Window> loneSnippets = WindowManager.getWindowsWithName("LoneSnippet");
+            foreach (Window lS in loneSnippets)
+            {
+                if (lS is LoneSnippet)
+                    src.AppendLine(((LoneSnippet)lS).getCode());
+            }
+
+            src.AppendLine("}");
+
+
             string source = src.ToString();
+            Debug.Log(source); // TEMP!!
             lastASM = compile(source);
         }
 

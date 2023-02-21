@@ -6,7 +6,7 @@ public class SnapLocation : MonoBehaviour
 {
     [SerializeField] private Transform snapPoint;
     [SerializeField] private Transform parentOnSnap;
-    [SerializeField] private SnapListener snapListener;
+    public SnapListener snapListener;
 
 
 

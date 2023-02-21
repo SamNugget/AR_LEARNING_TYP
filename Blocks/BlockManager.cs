@@ -323,7 +323,7 @@ public class BlockManager : MonoBehaviour
         parent.replaceSubBlock(newBlock, subBlockIndex);
 
         // draw the blocks
-        parent.drawBlock(true);
+        parent.getMasterBlock().drawBlock(true);
 
         CompilationManager.changed = true;
 
@@ -374,7 +374,7 @@ public class BlockManager : MonoBehaviour
         splitter.replaceSubBlock(toSplit, originalOnTop ? 0 : 1);
 
         // draw the blocks
-        parent.drawBlock(true);
+        parent.getMasterBlock().drawBlock(true);
 
         CompilationManager.changed = true;
 

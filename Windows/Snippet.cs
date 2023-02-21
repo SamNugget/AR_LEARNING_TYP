@@ -2,8 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Snippet : Window
+public abstract class Snippet : Window
 {
+    protected virtual string decBlockName
+    {
+        get { return ""; }
+    }
+
     private MethodS _methodSave;
     public MethodS methodSave
     {
@@ -16,18 +21,25 @@ public class Snippet : Window
             if (_methodSave == null)
             {
                 _methodSave = value;
-                initialiseBlocks();
-                scaleWindow();
+                initialise();
             }
         }
     }
 
-    private void initialiseBlocks()
+
+
+    protected virtual void initialise()
+    {
+        initialiseBlocks();
+        scaleWindow();
+    }
+
+    protected void initialiseBlocks()
     {
         if (_methodSave.methodDeclarationS == null)
         {
             // create declaration block
-            int bVI = BlockManager.getBlockVariantIndex(this is MethodSnippet ? "Method" : "Snippet Declaration");
+            int bVI = BlockManager.getBlockVariantIndex(decBlockName);
             _methodSave.methodDeclaration = BlockManager.createMasterBlock(bVI, transform);
             // create body block
             bVI = BlockManager.getBlockVariantIndex("Method Block");
@@ -54,5 +66,20 @@ public class Snippet : Window
         width = scale.x;
         height = scale.y;
         base.scaleWindow();
+    }
+
+
+
+    public override void close()
+    {
+        ClassWindow cW = GetComponentInParent<ClassWindow>();
+        if (cW != null) cW.removeMethod(this);
+        base.close();
+    }
+
+    public void insert()
+    {
+        ClassWindow cW = GetComponentInParent<ClassWindow>();
+        if (cW != null) cW.insertMethod(this);
     }
 }
