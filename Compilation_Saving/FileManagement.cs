@@ -44,8 +44,9 @@ namespace FileManagement
             {
                 MethodInfo methodInfo = lastASM.GetType("Snippets").GetMethod(methodName);
                 object result = methodInfo.Invoke(null, args);
-
-                ObjectInstanceManager.createObjectInstance(result, spawnPoint);
+                
+                if (result != null)
+                    ObjectInstanceManager.createObjectInstance(result, spawnPoint);
             }
             catch (Exception e)
             {

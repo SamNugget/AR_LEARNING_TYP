@@ -15,9 +15,9 @@ public class ConstructorSnippet : RunnableSnippet
         return methodSave.methodDeclaration.getSubBlock(1);
     }
 
-    protected override void run()
+    public override void run()
     {
         ClassWindow cW = GetComponentInParent<ClassWindow>();
-        CompilationManager.constructObject(cW.referenceTypeSave.name, transform.position + new Vector3(0f, 1f, 0f));
+        CompilationManager.constructObject(cW.referenceTypeSave.name, spawnPoint.position);
     }
 }

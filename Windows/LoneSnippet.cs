@@ -17,7 +17,7 @@ public class LoneSnippet : RunnableSnippet
         return methodSave.methodDeclaration.getSubBlock(0);
     }
 
-    protected override void run()
+    public override void run()
     {
         object[] args = new object[snapPoints.Count];
         for (int i = snapPoints.Count - 1; i >= 0; i--)
@@ -25,7 +25,7 @@ public class LoneSnippet : RunnableSnippet
             ObjectInstance oI = snapPoints[i].parameter;
             args[i] = (oI == null ? null : oI.inMemory);
         }
-        CompilationManager.executeSnippet(snippetName, args, transform.position + new Vector3(0f, 1f, 0f));
+        CompilationManager.executeSnippet(snippetName, args, spawnPoint.position);
     }
 
 

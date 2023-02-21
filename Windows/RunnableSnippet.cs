@@ -5,9 +5,10 @@ using ObjectInstances;
 
 public abstract class RunnableSnippet : Snippet
 {
-    private static float cubeSpacing = 0.5f;
+    private static float cubeSpacing = 0.1f;
 
     [SerializeField] private GameObject snapPointFab;
+    [SerializeField] protected Transform spawnPoint;
 
     protected List<SnapPoint> snapPoints = new List<SnapPoint>();
 
@@ -37,6 +38,9 @@ public abstract class RunnableSnippet : Snippet
 
     private void initialiseSnapPoints()
     {
+        if (methodSave == null || methodSave.methodDeclaration == null)
+            return;
+
         Block parametersParent = getParametersParent();
         List<Block> parameterNameBlocks = parametersParent.getBlocksOfType(BlockManager.NAME);
         int noOfParameters = parameterNameBlocks.Count;
@@ -62,23 +66,26 @@ public abstract class RunnableSnippet : Snippet
                 // not enough snap points
                 // spawn one and move it
                 Transform snapLocation = Instantiate(snapPointFab, openingL).transform;
-                snapLocation.transform.localPosition = new Vector3(cubeSpacing * (snapPoints.Count + 1), 0f, 0f);
+                snapLocation.transform.localPosition = new Vector3(cubeSpacing * -(snapPoints.Count + 1), 0f, 0f);
                 
                 // add snap point object
-                snapPoints.Add(new SnapPoint(snapLocation.GetComponent<SnapLocation>()));
+                snapPoints.Add(new SnapPoint(snapLocation.GetComponentInChildren<SnapLocation>()));
             }
         }
 
-        platform.localScale = new Vector3(cubeSpacing * (snapPoints.Count + 1), 0f, 0f);
+        platform.localScale = new Vector3(cubeSpacing * (snapPoints.Count + 1), 1f, 1f);
     }
     public override void scaleWindow()
     {
         base.scaleWindow();
+
+        Transform openingR = transform.Find("OpeningR");
+        openingR.transform.localPosition = new Vector3(width, -height / 2f, 0f);
 
         initialiseSnapPoints();
     }
 
     protected abstract Block getParametersParent();
 
-    protected abstract void run();
+    public abstract void run();
 }

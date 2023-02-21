@@ -106,7 +106,7 @@ public class ClassWindow : Window
 
         // move snippets
         float yPos = -height;
-        foreach (MethodSnippet mS in methodSnippets)
+        foreach (Snippet mS in methodSnippets)
         {
             mS.transform.localPosition = new Vector3(0f, yPos, 0f);
             yPos -= mS.height;

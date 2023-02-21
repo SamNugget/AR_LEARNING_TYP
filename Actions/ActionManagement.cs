@@ -384,7 +384,7 @@ namespace ActionManagement
 
             // if splitting method or field, insert new method/field line
             string blockName = toSplit.getBlockVariant().getName();
-            if (blockName == "Field")
+            if (blockName == "Field" || blockName == "VariableH")
                 BlockManager.spawnBlock(BlockManager.getBlockVariantIndex(blockName), splitter.getSubBlock(1));
 
             splitter.setSpecialChildBlock(BlockManager.getBlockVariantIndex("Insert Line"), true);
@@ -692,7 +692,7 @@ namespace ActionManagement
     {
         public void onCall(object data)
         {
-            Window w = WindowManager.spawnWindow("Snippet");
+            Window w = WindowManager.spawnWindow("LoneSnippet");
             ((Snippet)w).methodSave = new MethodS();
         }
     }
