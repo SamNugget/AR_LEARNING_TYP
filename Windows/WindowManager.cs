@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using FileManagement; // temp
+using System.Reflection;
 
 public class WindowManager : MonoBehaviour
 {
@@ -84,7 +85,6 @@ public class WindowManager : MonoBehaviour
             }
         }
 
-        Debug.Log("There's " + masterBlocks.Count + " master blocks.");
         return masterBlocks;
     }
 
@@ -119,5 +119,7 @@ public class WindowManager : MonoBehaviour
         else Debug.LogError("Two WindowManager singletons.");
 
         FileManager.loadWorkspace("only_workspace");
+
+        Debug.Log(Assembly.GetAssembly(this.GetType()).GetName());
     }
 }

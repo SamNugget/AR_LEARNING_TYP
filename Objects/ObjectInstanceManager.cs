@@ -87,7 +87,6 @@ namespace ObjectInstances
 
         public abstract string getLabel();
         public abstract string getInspectText();
-        public abstract string toCode();
 
         protected virtual void setup()
         {
@@ -119,11 +118,6 @@ namespace ObjectInstances
                 json += lines[i].Substring(4) + '\n';
 
             return json;
-        }
-
-        public override string toCode()
-        {
-            return "ObjectInstanceGetter.getCustomTypeInstance(" + ObjectInstanceGetter.getCustomTypeInstanceKey(this) + ')';
         }
 
         protected override void setup()
@@ -171,23 +165,26 @@ namespace ObjectInstances
             return "" + inMemory;
         }
 
-        public override string toCode()
+        public override string getInspectText()
         {
-            return "" + inMemory;
+            return inMemory.GetType().Name + ": " + inMemory;
         }
     }
 
     public class IntInstance : BuiltInTypeInstance
     {
-        public override string getInspectText()
-        {
-            return "int: " + (int)inMemory;
-        }
-
         void Start()
         {
             _colour = Color.blue;
             _size = 8;
+        }
+    }
+
+    public class BoolInstance : BuiltInTypeInstance
+    {
+        void Start()
+        {
+            _colour = Color.cyan;
         }
     }
 
@@ -203,40 +200,27 @@ namespace ObjectInstances
             return "string: \"" + (string)inMemory + '\"';
         }
 
-        public override string toCode()
-        {
-            return '\"' + (string)inMemory + '\"';
-        }
-
         void Start()
         {
             _colour = Color.magenta;
         }
     }
 
-    public class ErrInstance : StringInstance
+    public class ErrInstance : BuiltInTypeInstance
     {
         public override string getLabel()
         {
             return "ERR";
         }
 
+        public override string getInspectText()
+        {
+            return "" + inMemory;
+        }
+
         void Start()
         {
             _colour = Color.red;
-        }
-    }
-
-    public class BoolInstance : BuiltInTypeInstance
-    {
-        public override string getInspectText()
-        {
-            return "bool: " + (bool)inMemory;
-        }
-
-        void Start()
-        {
-            _colour = Color.cyan;
         }
     }
 

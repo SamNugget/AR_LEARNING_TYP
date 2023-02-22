@@ -4,13 +4,13 @@ using UnityEngine;
 using TMPro;
 using ObjectInstances;
 
-public class InspectionPlatform : SnapListener
+public class InspectionPlatform : MonoBehaviour, SnapListener
 {
     [SerializeField] private TextMeshProUGUI screenText;
     [SerializeField] private float printSpeed = 1f;
     [SerializeField] private string defaultMessage;
 
-    public override void onSnap(Transform snapped)
+    public void onSnap(Transform snapped)
     {
         ObjectInstance oI = snapped.GetComponent<ObjectInstance>();
 
@@ -37,7 +37,7 @@ public class InspectionPlatform : SnapListener
         }
     }
 
-    public override void onUnsnap()
+    public void onUnsnap()
     {
         StopAllCoroutines();
         StartCoroutine(printText(defaultMessage));

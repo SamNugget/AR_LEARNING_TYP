@@ -42,7 +42,7 @@ namespace ActionManagement
             actions.Add(INSERT_LINE, new InsertLine());
             actions.Add(CREATE_NAME, new CreateName());
             actions.Add(NAME_NEW_F_M_V, new NameNewFMV());
-            //actions.Add(NAME_VARIABLE, new NameVariable());
+            actions.Add(NAME_VARIABLE, new NameVariable());
 
             //actions.Add(SAVE, new SaveCode());
             //actions.Add(COMPILE, new Compile());
@@ -189,6 +189,25 @@ namespace ActionManagement
                     Debug.Log(e.StackTrace);
                 }
             }
+        }
+
+
+
+        public static string stringToSafeName(string str)
+        {
+            string name = "";
+            foreach (char c in str)
+            {
+                if (c == '_') ;
+                else if (c >= 48 && c <= 57) ; // numbers
+                else if (c >= 65 && c <= 90) ; // uppercase
+                else if (c >= 97 && c <= 122) ; // lowercase
+                else continue;
+
+                name += c;
+            }
+
+            return name;
         }
     }
 
@@ -384,7 +403,9 @@ namespace ActionManagement
 
             // if splitting method or field, insert new method/field line
             string blockName = toSplit.getBlockVariant().getName();
-            if (blockName == "Field" || blockName == "VariableH")
+            if (blockName == "Field")
+                BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Place Field"), splitter.getSubBlock(1));
+            else if (blockName == "VariableH")
                 BlockManager.spawnBlock(BlockManager.getBlockVariantIndex(blockName), splitter.getSubBlock(1));
 
             splitter.setSpecialChildBlock(BlockManager.getBlockVariantIndex("Insert Line"), true);
@@ -486,7 +507,8 @@ namespace ActionManagement
 
         public override void onFinishedNaming(bool success, string name)
         {
-            if (!success) return;
+            name = ActionManager.stringToSafeName(name);
+            if (!success || name.Length == 0) return;
 
 
             int emptyNameBlockIndex;
@@ -532,7 +554,7 @@ namespace ActionManagement
 
 
 
-    /*public class NameVariable : NameCreator, Act
+    public class NameVariable : NameCreator, Act
     {
         // BlockClicked ==> NameVariable ==> CreateName ==> NameVariable
 
@@ -570,7 +592,7 @@ namespace ActionManagement
         {
             return "Name Variable:";
         }
-    }*/
+    }
 
 
 

@@ -6,6 +6,7 @@ public class SnapLocation : MonoBehaviour
 {
     [SerializeField] private Transform snapPoint;
     [SerializeField] private Transform parentOnSnap;
+    [SerializeField] private Transform _snapListener;
     public SnapListener snapListener;
 
 
@@ -76,5 +77,14 @@ public class SnapLocation : MonoBehaviour
 
         snapped = null;
         StopAllCoroutines();
+    }
+
+    void Start()
+    {
+        if (_snapListener != null)
+        {
+            SnapListener sL = _snapListener.GetComponent<SnapListener>();
+            if (sL != null) snapListener = sL;
+        }
     }
 }

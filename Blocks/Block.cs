@@ -394,15 +394,15 @@ public class Block : MonoBehaviour
         return this;
     }
 
-    public List<Block> getBlocksOfType(string type, List<Block> blocks = null)
+    public List<Block> getBlocksOfVariant(BlockManager.BlockVariant bV, List<Block> blocks = null)
     {
         if (blocks == null) blocks = new List<Block>();
 
-        if (blockVariant.getBlockType() == type)
+        if (blockVariant == bV)
             blocks.Add(this);
 
         foreach (Block subBlock in subBlocks)
-            subBlock.getBlocksOfType(type, blocks);
+            subBlock.getBlocksOfVariant(bV, blocks);
 
         return blocks;
     }

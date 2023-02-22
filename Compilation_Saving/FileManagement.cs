@@ -19,15 +19,30 @@ namespace FileManagement
         private static string errors;
         public static bool changed;
 
+        private static string[] namespaces =
+        {
+            "System",
+            "System.Collections",
+            "System.Collections.Generic",
+            "UnityEngine"/*,
+            "Assembly-CSharp"*/
+        };
+
         public static void constructObject(string typeName, Vector3 spawnPoint)
         {
+            compileActiveWorkspace();
             if (lastASM == null)
+            {
                 ObjectInstanceManager.createObjectInstance<ErrInstance>(errors, spawnPoint);
+                return;
+            }
 
             try
             {
                 object instance = lastASM.CreateInstance(typeName);
-                ObjectInstanceManager.createObjectInstance(instance, spawnPoint);
+
+                if (instance != null)
+                    ObjectInstanceManager.createObjectInstance(instance, spawnPoint);
             }
             catch (Exception e)
             {
@@ -37,12 +52,18 @@ namespace FileManagement
 
         public static void executeSnippet(string methodName, object[] args, Vector3 spawnPoint)
         {
+            compileActiveWorkspace();
             if (lastASM == null)
+            {
                 ObjectInstanceManager.createObjectInstance<ErrInstance>(errors, spawnPoint);
+                return;
+            }
 
             try
             {
                 MethodInfo methodInfo = lastASM.GetType("Snippets").GetMethod(methodName);
+                //Invoke(Object, BindingFlags, Binder, Object[], CultureInfo) ?
+                //object result = methodInfo.Invoke(null, null, null, args, null);
                 object result = methodInfo.Invoke(null, args);
                 
                 if (result != null)
@@ -56,8 +77,19 @@ namespace FileManagement
 
         public static void compileActiveWorkspace()
         {
+            if (!changed) return;
+            Debug.Log("Saved files " + (FileManager.saveAllFiles() ? "successfully." : "unsuccessfully."));
+
+
             StringBuilder src = new StringBuilder();
 
+            // append all "using" statements
+            foreach (string n in namespaces)
+                src.AppendLine("using " + n + ';');
+            src.AppendLine();
+
+
+            // append all source files
             Dictionary<string, ReferenceTypeS>.ValueCollection values = FileManager.activeWorkspace._sourceFiles.Values;
             foreach (ReferenceTypeS rTS in values)
             {
@@ -67,14 +99,15 @@ namespace FileManagement
             }
 
 
-            // append all loneSnippets to the end
-            src.AppendLine("public static Snippets\n{");
+            // append all loneSnippets
+            src.AppendLine("public static class Snippets\n{");
 
             List<Window> loneSnippets = WindowManager.getWindowsWithName("LoneSnippet");
             foreach (Window lS in loneSnippets)
             {
                 if (lS is LoneSnippet)
                     src.AppendLine(((LoneSnippet)lS).getCode());
+                src.AppendLine();
             }
 
             src.AppendLine("}");
@@ -351,9 +384,11 @@ namespace FileManagement
 
             public bool saveAllFiles()
             {
+                bool allPass = true;
                 foreach (string file in _sourceFiles.Keys)
-                    if (!saveSourceFile(file)) return false;
-                return true;
+                    if (!saveSourceFile(file))
+                        allPass = false;
+                return allPass;
             }
 
             public ReferenceTypeS createSourceFile(string name)

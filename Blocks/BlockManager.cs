@@ -14,7 +14,8 @@ public class BlockManager : MonoBehaviour
     [SerializeField] private float _blockScale = 1f;
     public static float blockScale { get { return singleton._blockScale; } }
 
-    [SerializeField] private int placeableVariants;
+    [SerializeField] private int _placeableVariants;
+    public static int placeableVariants { get { return singleton._placeableVariants; } }
 
     private static int nextKey;
 
@@ -529,7 +530,7 @@ public class BlockManager : MonoBehaviour
 
 
     public static List<string> blocksEnabledDefault = new List<string>() { NAME, PLACE };
-    public static List<string> blocksEnabledForPlacing = new List<string>() { EMPTY };
+    public static List<string> blocksEnabledForPlacing = new List<string>() { EMPTY, NAME, PLACE };
 
     /*// ACTIONS
     private static int mode = 0;

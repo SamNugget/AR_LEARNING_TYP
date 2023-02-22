@@ -5,7 +5,7 @@ using ObjectInstances;
 
 public abstract class RunnableSnippet : Snippet
 {
-    private static float cubeSpacing = 0.1f;
+    private static float cubeSpacing = 0.125f;
 
     [SerializeField] private GameObject snapPointFab;
     [SerializeField] protected Transform spawnPoint;
@@ -20,15 +20,15 @@ public abstract class RunnableSnippet : Snippet
         public SnapPoint(SnapLocation snapLocation)
         {
             this.snapLocation = snapLocation;
-            snapLocation.snapListener = this;
+            snapLocation.snapListener = (SnapListener)this;
         }
 
-        public override void onSnap(Transform snapped)
+        public void onSnap(Transform snapped)
         {
             parameter = snapped.GetComponent<ObjectInstance>();
         }
 
-        public override void onUnsnap()
+        public void onUnsnap()
         {
             parameter = null;
         }
@@ -42,7 +42,7 @@ public abstract class RunnableSnippet : Snippet
             return;
 
         Block parametersParent = getParametersParent();
-        List<Block> parameterNameBlocks = parametersParent.getBlocksOfType(BlockManager.NAME);
+        List<Block> parameterNameBlocks = parametersParent.getBlocksOfVariant(BlockManager.getBlockVariant("VariableH"));
         int noOfParameters = parameterNameBlocks.Count;
 
         Transform openingL = transform.Find("OpeningL");
@@ -66,14 +66,15 @@ public abstract class RunnableSnippet : Snippet
                 // not enough snap points
                 // spawn one and move it
                 Transform snapLocation = Instantiate(snapPointFab, openingL).transform;
-                snapLocation.transform.localPosition = new Vector3(cubeSpacing * -(snapPoints.Count + 1), 0f, 0f);
+                snapLocation.transform.localPosition = new Vector3(cubeSpacing * -(0.5f + snapPoints.Count), 0f, 0f);
                 
                 // add snap point object
                 snapPoints.Add(new SnapPoint(snapLocation.GetComponentInChildren<SnapLocation>()));
             }
         }
 
-        platform.localScale = new Vector3(cubeSpacing * (snapPoints.Count + 1), 1f, 1f);
+        platform.gameObject.SetActive(snapPoints.Count != 0);
+        platform.localScale = new Vector3(cubeSpacing * snapPoints.Count, 1f, 1f);
     }
     public override void scaleWindow()
     {
