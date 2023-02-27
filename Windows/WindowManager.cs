@@ -118,8 +118,10 @@ public class WindowManager : MonoBehaviour
         if (singleton == null) singleton = this;
         else Debug.LogError("Two WindowManager singletons.");
 
+        // temp
+        FileManager.deleteWorkspace("only_workspace");
         FileManager.loadWorkspace("only_workspace");
 
-        Debug.Log(Assembly.GetAssembly(this.GetType()).GetName());
+        //Debug.Log(Assembly.GetAssembly(this.GetType()).Location);
     }
 }

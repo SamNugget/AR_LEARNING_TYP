@@ -25,6 +25,7 @@ namespace FileManagement
             "System.Collections",
             "System.Collections.Generic",
             "UnityEngine"/*,
+            "Objects.ObjectInstances",
             "Assembly-CSharp"*/
         };
 
@@ -39,6 +40,9 @@ namespace FileManagement
 
             try
             {
+                // NOTE: dynamic doesn't work because this asm does not ref new one?
+
+                //object instance = lastASM.CreateInstance(typeName, false, null, null, object[] args);
                 object instance = lastASM.CreateInstance(typeName);
 
                 if (instance != null)
@@ -61,11 +65,17 @@ namespace FileManagement
 
             try
             {
+                // TESTING
+                MethodInfo mI = lastASM.GetType("Snippets").GetMethod("test");
+                mI.Invoke(null, null);
+                return;
+
+
                 MethodInfo methodInfo = lastASM.GetType("Snippets").GetMethod(methodName);
-                //Invoke(Object, BindingFlags, Binder, Object[], CultureInfo) ?
+
                 //object result = methodInfo.Invoke(null, null, null, args, null);
                 object result = methodInfo.Invoke(null, args);
-                
+
                 if (result != null)
                     ObjectInstanceManager.createObjectInstance(result, spawnPoint);
             }
@@ -110,6 +120,9 @@ namespace FileManagement
                 src.AppendLine();
             }
 
+            // TESTING
+            src.AppendLine("\npublic static void test() { ObjectInstanceManager.createObjectInstance(69, new Vector3(0.6f, 0f, 0f)); }");
+
             src.AppendLine("}");
 
 
@@ -126,7 +139,9 @@ namespace FileManagement
 
 
             // Add ALL of the assembly references
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            int added = assemblies.Length;
+            foreach (var assembly in assemblies)
             {
                 string assemblyName = Path.GetFileName(assembly.Location);
                 try
@@ -138,8 +153,9 @@ namespace FileManagement
                     }
                 }
                 catch { }
-                Debug.Log("Failed to add: " + assemblyName);
+                added--;
             }
+            Debug.Log("Added " + added + " of " + assemblies.Length + " assemblies.");
 
 
 
@@ -220,6 +236,19 @@ namespace FileManagement
                 activeWorkspace = new Workspace(workspacePath);
 
                 BlockManager.loadCustomBlockVariants();
+            }
+        }
+
+        public static void deleteWorkspace(string name)
+        {
+            string path = PathManager.workspacesPath + '/' + name;
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch
+            {
+                Debug.Log("Failed to delete workspace " + name + '.');
             }
         }
 

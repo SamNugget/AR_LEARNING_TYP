@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+// temp
+using System.Reflection;
+
 namespace ObjectInstances
 {
     public class ObjectInstanceManager : MonoBehaviour
@@ -37,33 +40,13 @@ namespace ObjectInstances
 
         void Start()
         {
-            createObjectInstance<IntInstance>(10, new Vector3(0.3f, 0.5f, 0f));
-            createObjectInstance<StringInstance>("howdy", new Vector3(0.3f, 0.6f, 0f));
-            createObjectInstance<CustomTypeInstance>(new Person(), new Vector3(0.3f, 0.7f, 0f));
-            createObjectInstance<BoolInstance>(true, new Vector3(0.3f, 0.8f, 0f));
-        }
-    }
+            // temp
+            createObjectInstance<IntInstance>(10, new Vector3(0.3f, -1.45f, 0f));
+            createObjectInstance<StringInstance>("howdy", new Vector3(0.3f, -1.35f, 0f));
+            createObjectInstance<CustomTypeInstance>(new Person(), new Vector3(0.3f, -1.25f, 0f));
+            createObjectInstance<BoolInstance>(true, new Vector3(0.3f, -1.15f, 0f));
 
-
-
-    public static class ObjectInstanceGetter
-    {
-        private static List<ObjectInstance> objectInstances = new List<ObjectInstance>();
-
-        public static int getCustomTypeInstanceKey(ObjectInstance objectInstance)
-        {
-            if (!objectInstances.Contains(objectInstance))
-                objectInstances.Add(objectInstance);
-
-            return objectInstances.IndexOf(objectInstance);
-        }
-
-        public static object getCustomTypeInstance(int key)
-        {
-            if (key < 0 || key >= objectInstances.Count || objectInstances[key] == null)
-                return null;
-
-            return objectInstances[key].inMemory;
+            //Debug.Log(Assembly.GetAssembly(this.GetType()).GetName().Name);
         }
     }
 
@@ -101,7 +84,7 @@ namespace ObjectInstances
     // CUSTOM TYPES
     public class CustomTypeInstance : ObjectInstance
     {
-        private static Dictionary<Type, Color> colours = new Dictionary<Type, Color>();
+        private static Dictionary<string, Color> colours = new Dictionary<string, Color>();
 
         public override string getLabel()
         {
@@ -125,10 +108,11 @@ namespace ObjectInstances
             base.setup();
 
 
-            Type t = inMemory.GetType();
+            //string typeName = ((CustomType)inMemory).name;
+            string typeName = inMemory.GetType().Name;
 
             // get colour for this custom type
-            if (!colours.ContainsKey(t))
+            if (!colours.ContainsKey(typeName))
             {
                 // generate random colour
                 float r = 0f, g = 0f, b = 0f, sum = 0f;
@@ -139,12 +123,24 @@ namespace ObjectInstances
                     b = UnityEngine.Random.Range(0f, 1f);
                     sum = r + g + b;
                 }
-                colours.Add(t, new Color(r, g, b, 1f));
+                colours.Add(typeName, new Color(r, g, b, 1f));
             }
 
-            _colour = colours[t];
+            _colour = colours[typeName];
         }
     }
+
+    /*public class CustomType
+    {
+        public string name;
+        public List<Field> fields;
+
+        public class Field
+        {
+            public string name;
+            public object value;
+        }
+    }*/
 
     // test
     [System.Serializable]
@@ -173,8 +169,10 @@ namespace ObjectInstances
 
     public class IntInstance : BuiltInTypeInstance
     {
-        void Start()
+        protected override void setup()
         {
+            base.setup();
+
             _colour = Color.blue;
             _size = 8;
         }
@@ -182,9 +180,12 @@ namespace ObjectInstances
 
     public class BoolInstance : BuiltInTypeInstance
     {
-        void Start()
+        protected override void setup()
         {
+            base.setup();
+
             _colour = Color.cyan;
+            _size = 7;
         }
     }
 
@@ -197,12 +198,15 @@ namespace ObjectInstances
 
         public override string getInspectText()
         {
-            return "string: \"" + (string)inMemory + '\"';
+            return "String: \"" + (string)inMemory + '\"';
         }
 
-        void Start()
+        protected override void setup()
         {
+            base.setup();
+
             _colour = Color.magenta;
+            _size = 9;
         }
     }
 
@@ -218,9 +222,13 @@ namespace ObjectInstances
             return "" + inMemory;
         }
 
-        void Start()
+        protected override void setup()
         {
+            base.setup();
+
             _colour = Color.red;
+
+            Debug.Log(inMemory);
         }
     }
 
