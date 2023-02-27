@@ -53,7 +53,7 @@ public class LoneSnippet : RunnableSnippet
     {
         StringBuilder src = new StringBuilder();
         src.Append("public static ");
-        string returnType = methodSave.methodDeclaration.getSubBlock(1).getBlockText(false);
+        string returnType = methodSave.methodDeclaration.getSubBlock(1).getBlockText(true);
         src.Append(returnType + ' ');
         string parameters = getParametersParent().getBlockText(true);
         src.AppendLine(snippetName + '(' + parameters + ')');

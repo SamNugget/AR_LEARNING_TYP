@@ -344,23 +344,7 @@ namespace ActionManagement
                 Debug.Log("Hello, ActionManagement here, I'm afraid you cannot delete the master block."); return;
             }
 
-            //TODO: will deleting this affect fields or methods
-            //string type = ((Block)data).getBlockVariant().getBlockType();
-            //if (type == BlockManager.FIELD || type == BlockManager.METHOD)
-            //{
-            //    Debug.Log("Can't delete blocks of this type.");
-            //    return;
-            //}
-
-            //TODO: the effect of deleting variables
-            //string[] subBlockTypes = parent.getBlockVariant().getSubBlockTypes();
-            //int subBlockIndex = parent.getSubBlockIndex(toReplace);
-            //string supposedType = subBlockTypes[subBlockIndex]; // not the actual type, but what should be here
-            //if (supposedType.Equals(BlockManager.NEW_NAME))
-            //{
-            //    Debug.Log("Can't delete a name.");
-            //    return;
-            //}
+            //TODO: will deleting this affect fields
 
             BlockManager.spawnBlock(0, toReplace, false);
             // enable only blocks that can be deleted

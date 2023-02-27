@@ -32,7 +32,6 @@ public class BlockManager : MonoBehaviour
     public readonly static string SPLITTER = "SR";
     public readonly static string INSERT_LINE = "IL";
     public readonly static string PLACE = "PL";
-    public readonly static string OPEN_METHOD = "OM";
 
     // struct, class, interface, enum, and record constructs
     public readonly static string FIELD = "FD"; // @AM @TP @NM
@@ -189,7 +188,7 @@ public class BlockManager : MonoBehaviour
             color = singleton.variableColor;
             splittableV = false;
             splittableH = false;
-            deleteable = false; // TODO: this needs to vary for dec and ref
+            deleteable = true;
 
             lines = new string[] { name };
 

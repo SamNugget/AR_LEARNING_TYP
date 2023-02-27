@@ -51,6 +51,10 @@ public class ClassWindow : Window
                 _referenceTypeSave.fields[i].fieldBlock = topBlock; // save reference to spawned block
             }
         }
+
+
+        // set correct sub blocks active
+        fieldMaster.setColliderEnabled(true, BlockManager.blocksEnabledDefault);
     }
 
     private List<Snippet> methodSnippets = new List<Snippet>();
@@ -77,6 +81,7 @@ public class ClassWindow : Window
 
         Snippet methodSnippet = (Snippet)WindowManager.spawnWindow(window);
         methodSnippet.transform.parent = transform;
+        methodSnippet.transform.localRotation = Quaternion.identity;
 
         methodSnippet.methodSave = methodSave;
         methodSnippets.Insert(pos, methodSnippet);

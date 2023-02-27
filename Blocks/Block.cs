@@ -130,6 +130,10 @@ public class Block : MonoBehaviour
     // recursive if wanting text from this block and subblocks together
     public string getBlockText(bool recursive)
     {
+        // if editor only block then return empty
+        if (recursive && blockVariant.getEditorOnly()) return "";
+
+
         // TODO: string builder
         width = -1;
         height = blockVariant.getHeight();
@@ -151,8 +155,7 @@ public class Block : MonoBehaviour
 
             if (recursive)
             {
-                bool editorOnly = block.getBlockVariant().getEditorOnly();
-                string blockText = editorOnly ? "" : block.getBlockText(true);
+                string blockText = block.getBlockText(true);
                 lines[currentLine] = before + blockText + after;
             }
             else // create a blank area which subblocks[i] will be on top
@@ -336,21 +339,24 @@ public class Block : MonoBehaviour
 
     public bool enableLeafBlocks(bool master) // returns isDeleteable
     {
-        /*if (master)
-        {
-            FileWindow fileWindow = transform.GetComponentInParent<FileWindow>();
-            if (fileWindow != null && fileWindow.referenceTypeSave.locked == true)
-            {
-                setColliderEnabled(false);
-                return false;
-            }
-        }*/
+        // TODO: deal with locked files
 
         bool isDeleteable = blockVariant.getDeleteable();
 
         foreach (Block subBlock in subBlocks)
             if (subBlock.enableLeafBlocks(false))
                 isDeleteable = false;
+
+        // handle special cases
+        if (blockVariant.getBlockType() == BlockManager.NAME)
+        {
+            // NAME blocks may NOT be deleted if
+            if (master) return false; // is master
+
+            string parentType = getParent().getBlockVariant().getBlockType();
+            if (parentType == BlockManager.FIELD) // is the name of a field
+                return false;
+        }
 
         setBlockButtonActive(isDeleteable);
         return isDeleteable;
