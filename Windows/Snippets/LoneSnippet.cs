@@ -19,13 +19,11 @@ public class LoneSnippet : RunnableSnippet
 
     public override void run()
     {
-        object[] args = new object[snapPoints.Count];
+        List<ObjectInstance> parameters = new List<ObjectInstance>();
         for (int i = snapPoints.Count - 1; i >= 0; i--)
-        {
-            ObjectInstance oI = snapPoints[i].parameter;
-            args[i] = (oI == null ? null : oI.inMemory);
-        }
-        CompilationManager.executeSnippet(snippetName, args, spawnPoint.position);
+            parameters.Add(snapPoints[i].parameter);
+
+        CompilationManager.executeSnippet(snippetName, parameters, spawnPoint);
     }
 
 

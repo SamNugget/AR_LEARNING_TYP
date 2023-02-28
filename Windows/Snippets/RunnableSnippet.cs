@@ -73,7 +73,7 @@ public abstract class RunnableSnippet : Snippet
             }
         }
 
-        platform.gameObject.SetActive(snapPoints.Count != 0);
+        openingL.gameObject.SetActive(snapPoints.Count != 0);
         platform.localScale = new Vector3(cubeSpacing * snapPoints.Count, 1f, 1f);
     }
     public override void scaleWindow()

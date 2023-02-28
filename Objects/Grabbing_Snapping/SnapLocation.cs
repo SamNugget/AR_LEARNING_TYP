@@ -43,7 +43,7 @@ public class SnapLocation : MonoBehaviour
     private void snap()
     {
         // disable snap area glow
-        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Renderer>().enabled = false;
 
         // copy rot and pos
         Transform t = snapped.transform;
@@ -69,7 +69,7 @@ public class SnapLocation : MonoBehaviour
     private void unsnap()
     {
         // enable snap area glow
-        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<Renderer>().enabled = true;
 
         // tell snap listener about this
         if (snapListener != null)

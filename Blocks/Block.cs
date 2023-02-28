@@ -351,11 +351,14 @@ public class Block : MonoBehaviour
         if (blockVariant.getBlockType() == BlockManager.NAME)
         {
             // NAME blocks may NOT be deleted if
-            if (master) return false; // is master
-
-            string parentType = getParent().getBlockVariant().getBlockType();
-            if (parentType == BlockManager.FIELD) // is the name of a field
-                return false;
+            if (master)
+                isDeleteable = false; // is master
+            else
+            {
+                string parentType = getParent().getBlockVariant().getBlockType();
+                if (parentType == BlockManager.FIELD) // is the name of a field
+                    isDeleteable = false;
+            }
         }
 
         setBlockButtonActive(isDeleteable);

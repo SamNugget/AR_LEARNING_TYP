@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-// temp
+using FileManagement;
 using System.Reflection;
+using System.Text;
 
 namespace ObjectInstances
 {
@@ -32,6 +33,8 @@ namespace ObjectInstances
             oI.inMemory = inMemory;
         }
 
+
+
         void Awake()
         {
             if (singleton == null) singleton = this;
@@ -54,8 +57,8 @@ namespace ObjectInstances
 
     public abstract class ObjectInstance : Cube
     {
-        private object _inMemory;
-        public object inMemory
+        protected object _inMemory;
+        public virtual object inMemory
         {
             get
             {
@@ -84,23 +87,42 @@ namespace ObjectInstances
     // CUSTOM TYPES
     public class CustomTypeInstance : ObjectInstance
     {
+        private static int idCounter = 0;
         private static Dictionary<string, Color> colours = new Dictionary<string, Color>();
+
+        public override object inMemory
+        {
+            get
+            {
+                // convert to object
+                return ((CustomType)_inMemory).ToObject();
+            }
+            set
+            {
+                // convert to CustomType
+                int id = (_inMemory == null ? idCounter++ : ((CustomType)_inMemory).id);
+                _inMemory = new CustomType(value, id);
+                setup();
+            }
+        }
 
         public override string getLabel()
         {
-            return inMemory.GetType().Name;
+            return ((CustomType)_inMemory).name;
         }
 
         public override string getInspectText()
         {
-            string json = JsonUtility.ToJson(inMemory, true);
+            /*string json = JsonUtility.ToJson(inMemory, true);
             string[] lines = json.Split('\n');
             
             json = getLabel() + '(' + inMemory.GetHashCode() + ")\n";
             for (int i = 1; i < lines.Length - 1; i++)
                 json += lines[i].Substring(4) + '\n';
 
-            return json;
+            return json;*/
+
+            return ((CustomType)_inMemory).ToString();
         }
 
         protected override void setup()
@@ -108,8 +130,8 @@ namespace ObjectInstances
             base.setup();
 
 
-            //string typeName = ((CustomType)inMemory).name;
-            string typeName = inMemory.GetType().Name;
+            string typeName = ((CustomType)_inMemory)._name;
+            //string typeName = inMemory.GetType().Name;
 
             // get colour for this custom type
             if (!colours.ContainsKey(typeName))
@@ -130,17 +152,94 @@ namespace ObjectInstances
         }
     }
 
-    /*public class CustomType
+    public class CustomType
     {
-        public string name;
-        public List<Field> fields;
+        public string _name;
+        public int id;
 
-        public class Field
+        public string name
         {
-            public string name;
-            public object value;
+            get
+            {
+                return _name + "(id" + id + ')';
+            }
         }
-    }*/
+
+        //                name    value
+        private Dictionary<string, object> fields;
+        // TODO: currently doesn't work for composition
+
+
+
+        public CustomType(object o, int id)
+        {
+            this.id = id;
+
+            try
+            {
+                fields = new Dictionary<string, object>();
+
+                Type t = o.GetType();
+                _name = t.Name;
+
+                FieldInfo[] fI = t.GetFields();
+                foreach (FieldInfo f in fI)
+                {
+                    string fieldName = f.Name;
+                    object value = f.GetValue(o);
+                    fields.Add(fieldName, value);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Issue converting from type " + (_name == null ? "null" : _name) + " to CustomType.");
+                Debug.Log(e.StackTrace);
+            }
+        }
+
+        public object ToObject()
+        {
+            try
+            {
+                Type t = CompilationManager.lastASM.GetType(_name, true, false);
+
+                object o = CompilationManager.lastASM.CreateInstance(_name);
+
+                foreach (string fieldName in fields.Keys)
+                {
+                    try
+                    {
+                        FieldInfo fI = t.GetField(fieldName);
+                        fI.SetValue(o, fields[fieldName]);
+                    }
+                    catch
+                    {
+                        fields.Remove(fieldName);
+                    }
+                }
+
+                return o;
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Issue converting from object to CustomType.");
+                Debug.Log(e.StackTrace);
+                return null;
+            }
+        }
+
+        public string ToString()
+        {
+            StringBuilder src = new StringBuilder();
+            
+            src.AppendLine(name + '\n');
+
+            foreach (string fieldName in fields.Keys)
+                src.AppendLine(fieldName + ": " + fields[fieldName]);
+
+            return src.ToString();
+        }
+    }
 
     // test
     [System.Serializable]
@@ -193,7 +292,10 @@ namespace ObjectInstances
     {
         public override string getLabel()
         {
-            return '\"' + (string)inMemory + '\"';
+            if (((string)inMemory).Length > 8)
+                return "String";
+            else
+                return '\"' + (string)inMemory + '\"';
         }
 
         public override string getInspectText()

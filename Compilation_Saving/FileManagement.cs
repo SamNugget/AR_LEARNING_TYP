@@ -15,7 +15,7 @@ namespace FileManagement
 {
     public static class CompilationManager
     {
-        private static Assembly lastASM;
+        public static Assembly lastASM;
         private static string errors;
         public static bool changed;
 
@@ -29,59 +29,60 @@ namespace FileManagement
             "Assembly-CSharp"*/
         };
 
-        public static void constructObject(string typeName, Vector3 spawnPoint)
+        public static void constructObject(string typeName, List<ObjectInstance> parameters, Transform spawnPoint)
         {
-            compileActiveWorkspace();
-            if (lastASM == null)
-            {
-                ObjectInstanceManager.createObjectInstance<ErrInstance>(errors, spawnPoint);
-                return;
-            }
-
-            try
-            {
-                // NOTE: dynamic doesn't work because this asm does not ref new one?
-
-                //object instance = lastASM.CreateInstance(typeName, false, null, null, object[] args);
-                object instance = lastASM.CreateInstance(typeName);
-
-                if (instance != null)
-                    ObjectInstanceManager.createObjectInstance(instance, spawnPoint);
-            }
-            catch (Exception e)
-            {
-                ObjectInstanceManager.createObjectInstance<ErrInstance>(e.ToString(), spawnPoint);
-            }
+            execute(false, typeName, parameters, spawnPoint);
         }
 
-        public static void executeSnippet(string methodName, object[] args, Vector3 spawnPoint)
+        public static void executeSnippet(string methodName, List<ObjectInstance> parameters, Transform spawnPoint)
+        {
+            execute(true, methodName, parameters, spawnPoint);
+        }
+
+        private static void execute(bool snippet, string name, List<ObjectInstance> parameters, Transform spawnPoint)
         {
             compileActiveWorkspace();
             if (lastASM == null)
             {
-                ObjectInstanceManager.createObjectInstance<ErrInstance>(errors, spawnPoint);
+                ObjectInstanceManager.createObjectInstance<ErrInstance>(errors, spawnPoint.position, spawnPoint.rotation);
                 return;
             }
 
             try
             {
-                // TESTING
-                MethodInfo mI = lastASM.GetType("Snippets").GetMethod("test");
-                mI.Invoke(null, null);
-                return;
+                // convert ObjectInstances into objects
+                object[] args = new object[parameters.Count];
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    args[i] = parameters[i].inMemory;
+                    // TODO: if null, default to something?
+                }
 
+                // perform computation
+                object result;
+                if (snippet)
+                {
+                    // lone snippet
+                    MethodInfo methodInfo = lastASM.GetType("Snippets").GetMethod(name);
+                    result = methodInfo.Invoke(null, args);
+                }
+                else
+                {
+                    // constructor snippet
+                    result = lastASM.CreateInstance(name, false, BindingFlags.CreateInstance, null, args, null, null);
+                }
 
-                MethodInfo methodInfo = lastASM.GetType("Snippets").GetMethod(methodName);
-
-                //object result = methodInfo.Invoke(null, null, null, args, null);
-                object result = methodInfo.Invoke(null, args);
-
+                // if not void method, spawn snippet output
                 if (result != null)
-                    ObjectInstanceManager.createObjectInstance(result, spawnPoint);
+                    ObjectInstanceManager.createObjectInstance(result, spawnPoint.position, spawnPoint.rotation);
+
+                // update the objects "inMemory" of ObjectInstances
+                for (int i = 0; i < parameters.Count; i++)
+                    parameters[i].inMemory = args[i];
             }
             catch (Exception e)
             {
-                ObjectInstanceManager.createObjectInstance<ErrInstance>(e.ToString(), spawnPoint);
+                ObjectInstanceManager.createObjectInstance<ErrInstance>(e.ToString(), spawnPoint.position, spawnPoint.rotation);
             }
         }
 
@@ -119,9 +120,6 @@ namespace FileManagement
                     src.AppendLine(((LoneSnippet)lS).getCode());
                 src.AppendLine();
             }
-
-            // TESTING
-            src.AppendLine("\npublic static void test() { ObjectInstanceManager.createObjectInstance(69, new Vector3(0.6f, 0f, 0f)); }");
 
             src.AppendLine("}");
 

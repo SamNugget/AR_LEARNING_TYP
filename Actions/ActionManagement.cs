@@ -491,27 +491,28 @@ namespace ActionManagement
 
         public override void onFinishedNaming(bool success, string name)
         {
+            if (!success) return;
+
             name = ActionManager.stringToSafeName(name);
-            if (!success || name.Length == 0) return;
+            if (name.Length == 0) return;
 
 
-            int emptyNameBlockIndex;
+            int emptyNameBlockIndex = 1;
             Block b;
             if (blockName == "Place Variable")
             {
                 // spawn a variable block (splittable with insert line)
                 b = BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("VariableH"), clicked, false);
-                emptyNameBlockIndex = 1;
             }
             else if (blockName == "Place Field")
             {
                 b = BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Field"), clicked, false);
                 clicked.GetComponentInParent<ClassWindow>().referenceTypeSave.addField(b);
-                emptyNameBlockIndex = 2;
             }
             else if (blockName == "Place Method")
             {
                 Debug.Log("Not yet implemented.");
+                // TODO: call insert method on successful naming
                 return;
             }
             else

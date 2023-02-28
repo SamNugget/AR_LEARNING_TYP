@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 [System.Serializable]
 public class ReferenceTypeS
