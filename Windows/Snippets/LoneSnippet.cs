@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,11 +20,10 @@ public class LoneSnippet : RunnableSnippet
 
     public override void run()
     {
-        List<ObjectInstance> parameters = new List<ObjectInstance>();
-        for (int i = snapPoints.Count - 1; i >= 0; i--)
-            parameters.Add(snapPoints[i].parameter);
-
-        CompilationManager.executeSnippet(snippetName, parameters, spawnPoint);
+        try {
+            CompilationManager.executeSnippet(snippetName, getParameters(), spawnPoint); }
+        catch (Exception e) {
+            InspectionPlatform.Log(e.ToString()); }
     }
 
 

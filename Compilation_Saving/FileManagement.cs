@@ -178,6 +178,9 @@ namespace FileManagement
                 }
                 errors = msg.ToString();
 
+                // temp
+                InspectionPlatform.Log(errors);
+
                 return null;
             }
 

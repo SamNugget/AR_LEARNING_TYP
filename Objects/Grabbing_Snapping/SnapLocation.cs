@@ -19,7 +19,7 @@ public class SnapLocation : MonoBehaviour
             StartCoroutine(trySnap(s));
     }
 
-    private void OnTriggerExit(Collider other)
+    public void OnTriggerExit(Collider other)
     {
         GameObject g = other.gameObject;
         Snappable s = g.GetComponent<Snappable>();

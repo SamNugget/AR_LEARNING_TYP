@@ -11,6 +11,13 @@ public abstract class RunnableSnippet : Snippet
     [SerializeField] protected Transform spawnPoint;
 
     protected List<SnapPoint> snapPoints = new List<SnapPoint>();
+    protected List<ObjectInstance> getParameters()
+    {
+        List<ObjectInstance> parameters = new List<ObjectInstance>();
+        for (int i = snapPoints.Count - 1; i >= 0; i--)
+            parameters.Add(snapPoints[i].parameter);
+        return parameters;
+    }
 
     public class SnapPoint : SnapListener
     {

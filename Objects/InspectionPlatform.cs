@@ -6,6 +6,8 @@ using ObjectInstances;
 
 public class InspectionPlatform : MonoBehaviour, SnapListener
 {
+    private static InspectionPlatform inspectionPlatform;
+
     [SerializeField] private TextMeshProUGUI screenText;
     [SerializeField] private float printSpeed = 1f;
     [SerializeField] private string defaultMessage;
@@ -20,11 +22,15 @@ public class InspectionPlatform : MonoBehaviour, SnapListener
             return;
         }
 
-        StopAllCoroutines();
-        StartCoroutine(printText(oI.getInspectText()));
+        Log(oI.getInspectText());
     }
 
-    private IEnumerator printText(string text)
+    public void onUnsnap()
+    {
+        Log(defaultMessage);
+    }
+
+    protected IEnumerator printText(string text)
     {
         screenText.text = "";
 
@@ -37,14 +43,16 @@ public class InspectionPlatform : MonoBehaviour, SnapListener
         }
     }
 
-    public void onUnsnap()
+    public static void Log(string message)
     {
-        StopAllCoroutines();
-        StartCoroutine(printText(defaultMessage));
+        inspectionPlatform.StopAllCoroutines();
+        inspectionPlatform.StartCoroutine(inspectionPlatform.printText(message));
     }
 
-    void Start()
+    void Awake()
     {
+        inspectionPlatform = this;
+
         screenText.text = defaultMessage;
     }
 }

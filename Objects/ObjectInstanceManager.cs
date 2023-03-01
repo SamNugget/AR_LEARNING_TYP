@@ -44,9 +44,9 @@ namespace ObjectInstances
         void Start()
         {
             // temp
-            createObjectInstance<IntInstance>(10, new Vector3(0.3f, -1.45f, 0f));
-            createObjectInstance<StringInstance>("howdy", new Vector3(0.3f, -1.35f, 0f));
-            createObjectInstance<CustomTypeInstance>(new Person(), new Vector3(0.3f, -1.25f, 0f));
+            createObjectInstance<IntInstance>(1, new Vector3(0.3f, -1.45f, 0f));
+            createObjectInstance<IntInstance>(2, new Vector3(0.3f, -1.35f, 0f));
+            createObjectInstance<StringInstance>("Hello!", new Vector3(0.3f, -1.25f, 0f));
             createObjectInstance<BoolInstance>(true, new Vector3(0.3f, -1.15f, 0f));
 
             //Debug.Log(Assembly.GetAssembly(this.GetType()).GetName().Name);
