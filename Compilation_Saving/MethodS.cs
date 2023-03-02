@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Text;
 
 [System.Serializable]
 public class MethodS
@@ -35,22 +36,19 @@ public class MethodS
         if (methodDeclaration == null)
             return null;
 
-        // TODO: string builder
-        string result = methodDeclaration.getBlockText(true);
-        string bodyText = "";
+        StringBuilder src = new StringBuilder();
+        src.AppendLine("public " + methodDeclaration.getBlockText(true) + "\n{");
         if (methodBodyMaster != null)
-            bodyText = methodBodyMaster.getBlockText(true);
+            src.AppendLine(methodBodyMaster.getBlockText(true));
         else
         {
             BlockSave bS = methodBodyMasterS;
             if (bS == null) bS = bodySaveBuffer;
             if (bS != null)
-                bodyText = BlockManager.blockSaveToText(bS);
+                src.AppendLine(BlockManager.blockSaveToText(bS));
         }
+        src.AppendLine("}");
 
-        result += "{\n" + bodyText + "\n}\n";
-
-
-        return result;
+        return src.ToString();
     }
 }

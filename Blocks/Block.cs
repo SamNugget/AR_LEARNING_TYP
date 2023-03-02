@@ -54,13 +54,14 @@ public class Block : MonoBehaviour
         this.subBlocks = new List<Block>();
         this.gameObject.name = this.blockVariant.getName();
         // set colour
+        // TODO: if empty, use colour of first expected type
         transform.GetComponentInChildren<MeshRenderer>().material.color = blockVariant.getColor();
 
 
 
 
-        // SPECIAL BLOCKS setup
         string blockType = blockVariant.getBlockType();
+        // SPECIAL BLOCKS setup
         // if insert line, set collider enabled
         if (blockType == BlockManager.INSERT_LINE)
             setBlockButtonActive(true);

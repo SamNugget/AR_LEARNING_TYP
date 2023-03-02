@@ -38,7 +38,10 @@ public class ClassWindow : Window
 
         Block topBlock = fieldMaster.getSubBlock(0);
         if (_referenceTypeSave.fields.Count == 0)
-            BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Place Field"), topBlock);
+        {
+            topBlock = BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("EmptyV"), topBlock);
+            BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Place Field"), topBlock.getSubBlock(0));
+        }
         else
         {
             topBlock = BlockManager.spawnBlock(0, topBlock, true, _referenceTypeSave.fields[0].fieldBlockS); // spawn first block

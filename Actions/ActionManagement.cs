@@ -391,10 +391,10 @@ namespace ActionManagement
 
             // if splitting method or field, insert new method/field line
             string blockName = toSplit.getBlockVariant().getName();
-            if (blockName == "Field")
+            if (blockName == "EmptyV" && toSplit.getBlocksOfVariant(BlockManager.getBlockVariant("Field")).Count > 0)
                 BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Place Field"), splitter.getSubBlock(1));
             else if (blockName == "VariableH")
-                BlockManager.spawnBlock(BlockManager.getBlockVariantIndex(blockName), splitter.getSubBlock(1));
+                BlockManager.spawnBlock(BlockManager.getBlockVariantIndex("Place Variable"), splitter.getSubBlock(1));
 
             splitter.setSpecialChildBlock(BlockManager.getBlockVariantIndex("Insert Line"), true);
         }

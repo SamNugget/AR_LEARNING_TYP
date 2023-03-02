@@ -30,28 +30,35 @@ public abstract class Snippet : Window
 
     protected virtual void initialise()
     {
+        if (_methodSave.methodDeclarationS == null)
+            initialiseMethodS();
         initialiseBlocks();
         scaleWindow();
     }
 
+    public void initialiseMethodS()
+    {
+        int blockCount = (decBlockName == "Method" ? 3 : 2);
+        BlockSave[] subblocks = new BlockSave[blockCount];
+        for (int i = 0; i < blockCount; i++) subblocks[i] = new BlockSave(0);
+        subblocks[(decBlockName == "Method" ? 2 : 0)] = new BlockSave(BlockManager.getBlockVariantIndex("Place Variable"));
+
+        _methodSave.methodDeclarationS = new BlockSave(BlockManager.getBlockVariantIndex(decBlockName), subblocks);
+
+        // create body block (with splittable empty)
+        int bVI = BlockManager.getBlockVariantIndex("Method Block");
+        int eBVI = BlockManager.getBlockVariantIndex("EmptyV");
+        _methodSave.methodBodyMasterS = new BlockSave(bVI, new BlockSave[] {
+            new BlockSave(eBVI, new BlockSave[] { new BlockSave(0) })
+        });
+    }
+
     protected void initialiseBlocks()
     {
-        if (_methodSave.methodDeclarationS == null)
-        {
-            // create declaration block
-            int bVI = BlockManager.getBlockVariantIndex(decBlockName);
-            _methodSave.methodDeclaration = BlockManager.createMasterBlock(bVI, transform);
-            // create body block
-            bVI = BlockManager.getBlockVariantIndex("Method Block");
-            _methodSave.methodBodyMaster = BlockManager.createMasterBlock(bVI, transform);
-        }
-        else
-        {
-            // create declaration block
-            _methodSave.methodDeclaration = BlockManager.createMasterBlock(-1, transform, _methodSave.methodDeclarationS);
-            // create body block
-            _methodSave.methodBodyMaster = BlockManager.createMasterBlock(-1, transform, _methodSave.methodBodyMasterS);
-        }
+        // create declaration block
+        _methodSave.methodDeclaration = BlockManager.createMasterBlock(-1, transform, _methodSave.methodDeclarationS);
+        // create body block
+        _methodSave.methodBodyMaster = BlockManager.createMasterBlock(-1, transform, _methodSave.methodBodyMasterS);
 
         _methodSave.methodBodyMaster.transform.position -= (Vector3)FontManager.lettersAndLinesToVector(0, 1, false) * 1.5f;
     }

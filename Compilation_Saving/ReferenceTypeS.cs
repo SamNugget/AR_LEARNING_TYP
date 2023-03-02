@@ -56,8 +56,12 @@ public class ReferenceTypeS
             new BlockSave(BlockManager.getBlockVariantIndex("Place Variable")) };
         constructor.methodDeclarationS = new BlockSave(BlockManager.getBlockVariantIndex("Constructor"), subblocks);
 
-        constructor.methodBodyMasterS = new BlockSave(BlockManager.getBlockVariantIndex("Method Block"),
-            new BlockSave[] { new BlockSave(0) });
+        // create body block (with splittable empty)
+        int bVI = BlockManager.getBlockVariantIndex("Method Block");
+        int eBVI = BlockManager.getBlockVariantIndex("EmptyV");
+        constructor.methodBodyMasterS = new BlockSave(bVI, new BlockSave[] {
+            new BlockSave(eBVI, new BlockSave[] {
+                new BlockSave(0) }) });
 
         return constructor;
     }
@@ -72,23 +76,28 @@ public class ReferenceTypeS
 
     public string getCode()
     {
-        // TODO: string builder
-        // first line
-        string code = "public class " + name + "\n{\n\n";
+        StringBuilder src = new StringBuilder();
+        src.AppendLine("public class " + name + "\n{\n");
 
 
         // fields
         foreach (FieldS f in fields)
-            code += f.getCode();
-        code += '\n';
+            src.AppendLine(f.getCode());
+        src.AppendLine();
+
+        Block constructor = methods[0].methodDeclaration;
+        bool defaultConstructor = constructor.getBlocksOfVariant(BlockManager.getBlockVariant("VariableH")).Count == 0;
+        // if empty constructor does not exist, make one
+        if (!defaultConstructor)
+            src.AppendLine("public " + name + "() { }");
 
         // methods
         foreach (MethodS m in methods)
-            code += m.getCode() + '\n';
+            src.AppendLine(m.getCode());
 
 
-        code += '}';
-        return code;
+        src.Append('}');
+        return src.ToString();
     }
 
     /*public MethodS findMethodSave(Block b)

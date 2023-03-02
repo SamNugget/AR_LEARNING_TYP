@@ -21,6 +21,6 @@ public class FieldS
         if (fieldBlock == null)
             return null;
 
-        return fieldBlock.getBlockText(true) + ";\n";
+        return "public " + fieldBlock.getBlockText(true) + ';';
     }
 }
