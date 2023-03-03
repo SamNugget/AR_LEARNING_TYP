@@ -14,7 +14,18 @@ namespace ObjectInstances
     {
         public static ObjectInstanceManager singleton;
 
-        [SerializeField] private GameObject objectFab;
+        [SerializeField] private List<GameObject> objectFabs;
+        [SerializeField] private GameObject defaultObjectFab;
+
+        private GameObject getObjectFab(string name)
+        {
+            name = name.ToLower();
+
+            foreach (GameObject g in objectFabs)
+                if (g.name.ToLower() == name)
+                    return g;
+            return defaultObjectFab;
+        }
 
         // TODO: inject this into snippets code
         public static void createObjectInstance(object inMemory, Vector3 spawnPoint, Quaternion spawnRotation = default)
@@ -27,7 +38,7 @@ namespace ObjectInstances
 
         public static void createObjectInstance<T>(object inMemory, Vector3 spawnPoint, Quaternion spawnRotation = default) where T : ObjectInstance
         {
-            GameObject g = Instantiate(singleton.objectFab, spawnPoint, spawnRotation, singleton.transform);
+            GameObject g = Instantiate(singleton.getObjectFab(inMemory.GetType().Name), spawnPoint, spawnRotation, singleton.transform);
 
             ObjectInstance oI = g.AddComponent<T>();
             oI.inMemory = inMemory;
@@ -53,7 +64,7 @@ namespace ObjectInstances
 
 
 
-    public abstract class ObjectInstance : Cube
+    public abstract class ObjectInstance : MonoBehaviour
     {
         protected object _inMemory;
         public virtual object inMemory
@@ -69,14 +80,15 @@ namespace ObjectInstances
             }
         }
 
+        protected Skin skin;
+
         public abstract string getLabel();
         public abstract string getInspectText();
 
         protected virtual void setup()
         {
-            TextMeshPro[] textBoxes = GetComponentsInChildren<TextMeshPro>();
-            foreach (TextMeshPro textBox in textBoxes)
-                textBox.text = getLabel();
+            skin = GetComponent<Skin>();
+            skin.setProperty("_name", getLabel());
         }
     }
 
@@ -97,9 +109,7 @@ namespace ObjectInstances
             }
             set
             {
-                // convert to CustomType
-                int id = (_inMemory == null ? idCounter++ : ((CustomType)_inMemory).id);
-                _inMemory = new CustomType(value, id);
+                _inMemory = value;
                 setup();
             }
         }
@@ -111,27 +121,14 @@ namespace ObjectInstances
 
         public override string getInspectText()
         {
-            /*string json = JsonUtility.ToJson(inMemory, true);
-            string[] lines = json.Split('\n');
-            
-            json = getLabel() + '(' + inMemory.GetHashCode() + ")\n";
-            for (int i = 1; i < lines.Length - 1; i++)
-                json += lines[i].Substring(4) + '\n';
-
-            return json;*/
-
             return ((CustomType)_inMemory).ToString();
         }
 
         protected override void setup()
         {
-            base.setup();
+            string typeName = _inMemory.GetType().Name;
 
-
-            string typeName = ((CustomType)_inMemory)._name;
-            //string typeName = inMemory.GetType().Name;
-
-            // get colour for this custom type
+            // get colour for this custom type, must be before CustomType construction
             if (!colours.ContainsKey(typeName))
             {
                 // generate random colour
@@ -146,7 +143,17 @@ namespace ObjectInstances
                 colours.Add(typeName, new Color(r, g, b, 1f));
             }
 
-            _colour = colours[typeName];
+
+            skin = GetComponent<Skin>();
+            skin.setProperty("_colour", colours[typeName]);
+
+
+            // convert to CustomType
+            int id = (_inMemory is CustomType ? ((CustomType)_inMemory).id : idCounter++);
+            _inMemory = new CustomType(_inMemory, id, skin);
+
+
+            skin.setProperty("_name", getLabel());
         }
     }
 
@@ -169,7 +176,7 @@ namespace ObjectInstances
 
 
 
-        public CustomType(object o, int id)
+        public CustomType(object o, int id, Skin skin)
         {
             this.id = id;
 
@@ -186,6 +193,8 @@ namespace ObjectInstances
                     string fieldName = f.Name;
                     object value = f.GetValue(o);
                     fields.Add(fieldName, value);
+
+                    skin.setProperty(fieldName, value);
                 }
             }
             catch (Exception e)
@@ -239,15 +248,6 @@ namespace ObjectInstances
         }
     }
 
-    // test
-    [System.Serializable]
-    public class Person
-    {
-        public int age = 22;
-        public int height = 150;
-        public bool married = false;
-    }
-
 
 
     // BUILT-IN TYPES
@@ -270,8 +270,8 @@ namespace ObjectInstances
         {
             base.setup();
 
-            _colour = Color.blue;
-            _size = 8;
+            skin.setProperty("colour", "blue");
+            skin.setProperty("size", 8);
         }
     }
 
@@ -281,8 +281,8 @@ namespace ObjectInstances
         {
             base.setup();
 
-            _colour = Color.cyan;
-            _size = 7;
+            skin.setProperty("colour", "cyan");
+            skin.setProperty("size", 7);
         }
     }
 
@@ -305,8 +305,8 @@ namespace ObjectInstances
         {
             base.setup();
 
-            _colour = Color.magenta;
-            _size = 9;
+            skin.setProperty("colour", "magenta");
+            skin.setProperty("size", 9);
         }
     }
 
@@ -326,7 +326,7 @@ namespace ObjectInstances
         {
             base.setup();
 
-            _colour = Color.red;
+            skin.setProperty("colour", "red");
 
             Debug.Log(inMemory);
         }
@@ -335,15 +335,37 @@ namespace ObjectInstances
 
 
     // VISUALISING
-    public class Cube : MonoBehaviour
+    public abstract class Skin : MonoBehaviour
     {
-        public int _size
+        public void setProperty(string name, object value)
+        {
+            name = name.ToLower();
+
+            Type t = this.GetType();
+            PropertyInfo[] pI = t.GetProperties();
+            foreach (PropertyInfo p in pI)
+            {
+                if (p.Name == name)
+                {
+                    try
+                    {
+                        p.SetValue(this, value);
+                    }
+                    catch { }
+                    return;
+                }
+            }
+        }
+
+
+
+        public string _name
         {
             set
             {
-                // set size of object
-                float s = value / 10f;
-                transform.localScale = new Vector3(s, s, s);
+                TextMeshPro[] textBoxes = GetComponentsInChildren<TextMeshPro>();
+                foreach (TextMeshPro textBox in textBoxes)
+                    textBox.text = value;
             }
         }
 
@@ -351,8 +373,36 @@ namespace ObjectInstances
         {
             set
             {
-                // set the colour of the object
                 GetComponentInChildren<Renderer>().material.color = value;
+            }
+        }
+
+        public string color { set { colour = value; } }
+        public string colour
+        {
+            set
+            {
+                // set the colour of the object
+                GetComponentInChildren<Renderer>().material.color = getColour(value);
+            }
+        }
+
+        protected static Color getColour(string name)
+        {
+            name = name.ToLower();
+
+            switch (name)
+            {
+                case "black": return Color.black;
+                case "blue": return Color.blue;
+                case "gray": case "grey": return Color.gray;
+                case "green": return Color.green;
+                case "red": return Color.red;
+                case "yellow": return Color.yellow;
+                case "pink": case "magenta": return Color.magenta;
+                case "orange": return new Color(1f, 0.647f, 0f, 1f);
+                case "cyan": return Color.cyan;
+                default: return Color.white;
             }
         }
     }
