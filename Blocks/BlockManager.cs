@@ -27,8 +27,10 @@ public class BlockManager : MonoBehaviour
 
     // BLOCK TYPES - needs overhaul, fuzzy line between type and variant
     // special
-    public readonly static string EMPTY = "EY";
     public readonly static string ANY = "AY";
+
+    public readonly static string EMPTY = "EY";
+    public readonly static string EMPTY_SPLITTABLE = "ES";
     public readonly static string SPLITTER = "SR";
     public readonly static string INSERT_LINE = "IL";
     public readonly static string PLACE = "PL";
@@ -51,13 +53,14 @@ public class BlockManager : MonoBehaviour
     // for if statements, while loops
     public readonly static string BOOLEAN_EXPRESSION = "BE"; // true, i == 1, etc.
     public readonly static string TRUE_FALSE = "TF";
+    public readonly static string COMPARISON = "CP";
 
 
 
 
 
     private static readonly string[] cycleable = {
-        ACCESS_MODIFIER, TRUE_FALSE
+        ACCESS_MODIFIER, TRUE_FALSE, COMPARISON
     };
     public static bool isCycleable(string blockType)
     {
@@ -74,7 +77,7 @@ public class BlockManager : MonoBehaviour
         foreach (KeyValuePair<int, BlockVariant> kvp in _defaultBlockVariants)
         {
             if (!found && kvp.Value == variant) found = true;
-            else if (kvp.Value.getBlockType() == blockType) return kvp.Key;
+            else if (found && kvp.Value.getBlockType() == blockType) return kvp.Key;
         }
         foreach (KeyValuePair<int, BlockVariant> kvp in _customBlockVariants)
         {
@@ -625,5 +628,6 @@ public class BlockManager : MonoBehaviour
 
 
         blocksEnabledDefault.AddRange(cycleable);
+        blocksEnabledForPlacing.AddRange(cycleable);
     }
 }

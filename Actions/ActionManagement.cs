@@ -138,7 +138,7 @@ namespace ActionManagement
             catch (Exception e)
             {
                 Debug.Log("Err calling mode.");
-                //Debug.Log(e.StackTrace);
+                Debug.Log(e.StackTrace);
                 InspectionPlatform.Log(e.StackTrace);
                 return false;
             }
@@ -189,7 +189,7 @@ namespace ActionManagement
                 catch (Exception e)
                 {
                     Debug.Log("Err calling action " + action + " with data: " + data);
-                    //Debug.Log(e.StackTrace);
+                    Debug.Log(e.StackTrace);
                     InspectionPlatform.Log(e.StackTrace);
                 }
             }

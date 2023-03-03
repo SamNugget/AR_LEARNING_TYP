@@ -34,12 +34,18 @@ public class Block : MonoBehaviour
         for (int i = 0; i < subBlockTypes.Length; i++)
         {
             int bVI = 0; // empty block by default
-            if (BlockManager.isCycleable(subBlockTypes[i]))
-                bVI = BlockManager.getFirstVariantOfType(subBlockTypes[i]); // e.g., special AM block
-            else if (subBlockTypes[i] == BlockManager.PLACE)
+            if (subBlockTypes[i] == BlockManager.PLACE)
                 bVI = BlockManager.getBlockVariantIndex("Place Variable"); // special [+] block
             else if (subBlockTypes[i] == BlockManager.NEW_NAME)
                 bVI = BlockManager.getBlockVariantIndex("Custom");
+            else if (BlockManager.isCycleable(subBlockTypes[i]))
+                bVI = BlockManager.getFirstVariantOfType(subBlockTypes[i]); // e.g., special AM block
+            else if (subBlockTypes[i] == BlockManager.EMPTY_SPLITTABLE)
+            {
+                subBlockSaves[i] = new BlockSave(BlockManager.getBlockVariantIndex("EmptyV"),
+                    new BlockSave[] { new BlockSave(0, null) });
+                continue;
+            }
 
             subBlockSaves[i] = new BlockSave(bVI, null);
         }
