@@ -369,7 +369,7 @@ namespace ObjectInstances
             }
         }
 
-        public Color _colour
+        public virtual Color _colour
         {
             set
             {
@@ -378,7 +378,7 @@ namespace ObjectInstances
         }
 
         public string color { set { colour = value; } }
-        public string colour
+        public virtual string colour
         {
             set
             {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ObjectInstances;
 
-public class Cube : Skin
+public class CubeSkin : Skin
 {
     public int size
     {

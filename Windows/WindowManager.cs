@@ -11,6 +11,8 @@ public class WindowManager : MonoBehaviour
     [SerializeField] private GameObject _buttonFab;
     public static GameObject buttonFab { get { return singleton._buttonFab; } }
 
+    [SerializeField] private Vector3 spawnPos;
+
     [System.Serializable]
     public class WindowFab
     {
@@ -38,6 +40,7 @@ public class WindowManager : MonoBehaviour
         if (windowFab == null) return null;
 
         GameObject g = Instantiate(windowFab, singleton.transform);
+        g.transform.position = singleton.spawnPos;
         return g.GetComponent<Window>();
     }
 
