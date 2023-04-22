@@ -3,7 +3,9 @@
 This repo is dedicated to my third year project (dissertation) completed as part of BSc Computer Science degree at Lancaster University (2020-2023).
 
 My C# is self-taught, and I have learnt a great deal over the course of this project. The most elegant code is notably:
+
 • <b>Objects/ObjectInstanceManager.cs</b> - for creating "assembly-independent" objects.
+
 • <b>Compilation_Saving/FileManagement.cs</b> - for compilation.
 
 
