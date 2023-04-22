@@ -1,8 +1,8 @@
 # Learn to code with Microsoft HoloLens
 
-This repo is dedicated to my third year project (dissertation) completed as part of BSc Computer Science degree at Lancaster University (2020-2023).
+This repo is dedicated to my third year project (dissertation) completed as part of a BSc Computer Science degree at Lancaster University (2020-2023).
 
-My C# is self-taught, and I have learnt a great deal over the course of this project. The most elegant code is notably:
+My C# is self-taught, and this project was created under tough time constraints. As such, some of my code style is poor. But I have learnt a great deal over the course of this project, and some elegant code exists, most notably:
 
 • <b>Objects/ObjectInstanceManager.cs</b> - for creating "assembly-independent" objects.
 
@@ -14,3 +14,7 @@ Microsoft HoloLens 2 is an Augmented Reality (AR) headset released by Microsoft 
 
 The app is streamed to HoloLens from the Unity Editor using Holographic remoting. Video demos available at:
 https://www.youtube.com/@SamuelNugent/videos
+
+<i>Unity project files to be posted at a later date.</i>
+
+Contact info: https://www.linkedin.com/in/samuelnugent/
